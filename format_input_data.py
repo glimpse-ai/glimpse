@@ -22,7 +22,6 @@ FORMAT of .pkl files saved from running this script:
     ...
   ]
 }
-
 """
 
 import os
@@ -78,5 +77,3 @@ if __name__ == '__main__':
     print 'Saving {} dataset...'.format(set_name)
     
     dump_pickle(pkl_path, info)
-    
-    print 'Done'
