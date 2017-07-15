@@ -1,0 +1,2 @@
+class LSTM:
+  attr = 'val'

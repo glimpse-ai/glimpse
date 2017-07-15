@@ -1,0 +1,2 @@
+class CNN:
+  attr = 'val'
