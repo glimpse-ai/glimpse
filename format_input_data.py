@@ -1,20 +1,20 @@
 """
-FORMAT of .pkl files saved:
+FORMAT of .pkl files saved from running this script:
 
 {
   'data': np.array([
-    [], # image to numpy array
-    [], # image to numpy array
+    [], # myimage.png to RGB numpy array
+    [], # another-image.png to RGB numpy array
     [], ...
     []  ...
   ]),
   'labels': [
-    0,  # contents of file "myimage.dml"
-    3,  # contents of file "another-image.dml"
+    '<body b="#424242" c="0" e="16px"><0 c="0 auto" g="80px"...'  # contents of myimage.dml
+    '<body e="12px" h="22px" i="400"...'  # contents of another-image.dml
     2,  # ...
     1   # ...
   ],
-  'batch_label': 'test batch',
+  'batch_label': 'train batch',
   'filenames': [
     'myimage.png',
     'another-image.png',
