@@ -4,3 +4,4 @@ venv/
 data/
 .env
 .idea/
+tmp/
