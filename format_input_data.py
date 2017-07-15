@@ -36,11 +36,11 @@ from helpers.image import normalize
 image_sets = {k: os.listdir('{}/{}'.format(image_dir, k)) for k in ['train', 'validation', 'test']}
 
 for set_name, image_names in image_sets.iteritems():
-  print 'Formatting {} dataset with {} records.'.format(set_name, len(image_names))
-  
   image_names = [n for n in image_names if n.endswith('.png')]
   image_names.sort()
-  
+
+  print 'Formatting {} dataset with {} records.'.format(set_name, len(image_names))
+
   info = {
     'data': [],
     'labels': [],
