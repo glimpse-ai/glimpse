@@ -1,3 +1,6 @@
+"""
+Script to move images into data/images/train, data/images/val, and data/images/test at a pre-defined ratio
+"""
 import os
 from helpers.definitions import tmp_dir, dml_dir, image_dir
 from math import ceil

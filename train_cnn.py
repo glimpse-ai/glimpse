@@ -1,5 +1,8 @@
 """
-CNN (encoder performing unsupervised feature learning by mapping an input image to a learned fixed-length vector):
+Train CNN with 3 conv_2d layers and 2 fcl layers
+
+Pix2Code's CNN-encoder architecture:
+(performs UFL by mapping an input image to a learned fixed-length vector):
 
 Image (625x1250)
   --> 3x3 receptive fields convolved with stride 1 as in VGGNet (this done twice)

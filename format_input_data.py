@@ -1,5 +1,7 @@
 """
-FORMAT of .pkl files saved from running this script:
+Script to create data/train.pkl, data/val.pkl, data/test.pkl from raw images and raw DML.
+
+Format of .pkl files saved from running this script:
 
 {
   'data': np.array([
@@ -23,7 +25,6 @@ FORMAT of .pkl files saved from running this script:
   ]
 }
 """
-
 import os
 from helpers.definitions import data_dir, image_dir, dml_dir
 import numpy as np
