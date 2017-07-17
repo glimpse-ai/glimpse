@@ -1,3 +1,6 @@
+"""
+Class that auto pulls params for a model based on nn type
+"""
 import json
 
 

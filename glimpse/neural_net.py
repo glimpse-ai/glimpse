@@ -1,3 +1,6 @@
+"""
+Abstract NeuralNetwork class that automatically pulls params from params.json
+"""
 import inspect
 from params import Params
 
