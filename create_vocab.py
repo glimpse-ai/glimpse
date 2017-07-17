@@ -1,6 +1,6 @@
 import os
 import json
-from definitions import data_dir, dml_dir
+from helpers.definitions import data_dir, dml_dir
 
 
 def create_vocab():

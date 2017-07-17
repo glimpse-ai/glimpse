@@ -25,7 +25,7 @@ FORMAT of .pkl files saved from running this script:
 """
 
 import os
-from definitions import data_dir, image_dir, dml_dir
+from helpers.definitions import data_dir, image_dir, dml_dir
 import numpy as np
 from scipy import misc
 from helpers.utils import dump_pickle
@@ -33,7 +33,7 @@ from helpers.image import normalize
 
 
 if __name__ == '__main__':
-  image_sets = {k: os.listdir('{}/{}'.format(image_dir, k)) for k in ['train', 'validation', 'test']}
+  image_sets = {k: os.listdir('{}/{}'.format(image_dir, k)) for k in ['train', 'val', 'test']}
   
   for set_name, image_names in image_sets.iteritems():
     image_names = [n for n in image_names if n.endswith('.png')]

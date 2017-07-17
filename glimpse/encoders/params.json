@@ -1,0 +1,17 @@
+{
+  "cnn": {
+    "Nbatch": 1,
+    "print_step": 6,
+    "C": 3,
+    "filters": 4,
+    "dims": [3, 3],
+    "strides": [1, 1],
+    "std": 0.01,
+    "lr": 0.01,
+    "momentum": 0.9,
+    "l2_coeff": 1.0
+  },
+  "lstm": {
+    "Nbatch": 1
+  }
+}
