@@ -12,6 +12,16 @@
     "l2_coeff": 1.0
   },
   "lstm": {
-    "Nbatch": 1
+    "hidden_size": 256,
+    "num_layers": 2,
+    "embedding_size": 32,
+    "softmax_samples": 0,
+    "num_epochs": 30,
+    "save_every": 1000,
+    "batch_size": 10,
+    "lr": 0.001,
+    "max_length_enco": 10,
+    "max_length_deco": 12,
+    "test": false
   }
 }
