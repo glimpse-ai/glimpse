@@ -7,11 +7,11 @@ from helpers.definitions import data_dir
 
 class CNN(NeuralNet):
   
-  def __init__(self, conv_layers=0, fcl_layers=0):
+  def __init__(self, n_conv_layers=0, n_fcl_layers=0):
     NeuralNet.__init__(self)
     
-    self.conv_layers = conv_layers
-    self.fcl_layers = fcl_layers
+    self.n_conv_layers = n_conv_layers
+    self.n_fcl_layers = n_fcl_layers
     
     # Init empty attrs
     self.X_train = None
@@ -65,14 +65,14 @@ class CNN(NeuralNet):
     
   def build_nn(self):
     # Add 3 Conv2D layers
-    self.add_conv(n_layers=self.conv_layers)
+    self.add_conv(n_layers=self.n_conv_layers)
     
     # Reshape o for some goddamn reason
     shape = self.o.get_shape().as_list()
     self.o = tf.reshape(self.o, [-1, shape[1] * shape[2] * shape[3]])
 
     # Add 2 FCL layers
-    self.add_fcl(n_layers=self.fcl_layers)
+    self.add_fcl(n_layers=self.n_fcl_layers)
   
   def train(self):
     loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.o, labels=self.y))

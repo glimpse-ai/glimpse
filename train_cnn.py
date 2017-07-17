@@ -16,5 +16,5 @@ Image (625x1250)
 
 from glimpse.encoders.cnn import CNN
 
-cnn = CNN(conv_layers=3, fcl_layers=2)
+cnn = CNN(n_conv_layers=3, n_fcl_layers=2)
 cnn.train()
