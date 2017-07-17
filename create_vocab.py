@@ -1,6 +1,9 @@
+"""
+Script to create data/vocab.json, a JSON array of all unique chars across all DML files.
+"""
 import os
 import json
-from definitions import data_dir, dml_dir
+from helpers.definitions import data_dir, dml_dir
 
 
 def create_vocab():
