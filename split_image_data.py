@@ -1,5 +1,5 @@
 import os
-from definitions import tmp_dir, dml_dir, image_dir
+from helpers.definitions import tmp_dir, dml_dir, image_dir
 from math import ceil
 
 samples_dir = tmp_dir + '/samples'
