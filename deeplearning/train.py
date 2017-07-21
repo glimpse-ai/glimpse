@@ -28,7 +28,7 @@ print 'X_train.shape = {}, Y_train.shape = {}'.format(X_train.shape, Y_train.sha
 N = X_train.shape[0] # => 6
 train_steps = N
 
-# # What are we doing here?
+# Do we still need this?
 # X = np.random.randn(train_steps, image_size[0], image_size[1], image_size[2])
 # Y = np.zeros((train_steps, num_words + 1, vocab_size))
 # inds = np.random.randint(vocab_size, size=(train_steps, num_words + 1, 1))
@@ -68,7 +68,11 @@ train = opt.minimize(loss)
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
+
+# TODO: X, Y_in, and Y_out need to be changed to reference X_train, something, and something else
+
 sess.run(train, {x_image: X[:4], x_words: Y_in[:4], y_words: Y_out[:4]})
 
 yhat = sess.run(output_words, {x_image: X[:4], x_words: Y_in[:4], y_words: Y_out[:4]})
+
 l = sess.run(loss, {x_image: X[:4], x_words: Y_in[:4], y_words: Y_out[:4]})
