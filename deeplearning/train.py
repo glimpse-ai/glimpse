@@ -59,7 +59,7 @@ for i in range(len(output_words)):
                                                                  logits=output_words[i]))
 loss = loss / num_words
 
-################################=
+################################
 # Train network
 ################################
 opt = tf.train.AdamOptimizer(learning_rate)
