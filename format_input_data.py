@@ -10,8 +10,8 @@ Format of .pkl files saved from running this script:
     ...
   ]),
   'labels': [
-    '<body b="#424242" c="0" e="16px"><0 c="0 auto" g="80px"...'  # contents of myimage.dml
-    '<body e="12px" h="22px" i="400"...'  # contents of another-image.dml
+    '<body b="#424242" c="0" e="16px"><0 c="0 auto" g="80px"...'  (# contents of myimage.dml) to vector matrix
+    '<body e="12px" h="22px" i="400"...'  # (contents of another-image.dml) to vector matrix
     ...
   ],
   'batch_label': 'train batch',
@@ -24,7 +24,7 @@ Format of .pkl files saved from running this script:
 """
 import os
 from helpers.definitions import data_dir, image_dir, dml_dir
-from helpers.vocab import dml_to_ints
+from helpers.vocab import dml2vec
 import numpy as np
 from scipy import misc
 from deeplearning.util import dump_pickle, normalize
@@ -58,10 +58,9 @@ for set_name, image_names in image_sets.iteritems():
     with open(dml_path) as f:
       dml = f.read().strip()
       
-    # Do I do this?
-    # dml = dml_to_ints(dml)
+    dml_as_array = dml2vec(dml)
     
-    info['labels'].append(dml)
+    info['labels'].append(dml_as_array)
     
     image_as_array = misc.imread(image_path, mode='RGB')
     
@@ -69,7 +68,6 @@ for set_name, image_names in image_sets.iteritems():
     
     i += 1
   
-  # TODO: modify this line based on which dtype info['labels'] actually ends up being
   info['labels'] = np.array(info['labels'])
   
   info['data'] = normalize(np.array(info['data']))

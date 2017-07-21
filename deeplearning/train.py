@@ -23,23 +23,23 @@ X_test, Y_test = extract_data('test')
 
 print 'X_train.shape = {}, Y_train.shape = {}'.format(X_train.shape, Y_train.shape)
 
+# Set more params
 # Nbatch = 64 ?
-N = X_train.shape[0]  # => 10
+N = X_train.shape[0] # => 6
 train_steps = N
 
-
-# What are we doing here?
-X = np.random.randn(train_steps, image_size[0], image_size[1], image_size[2])
-Y = np.zeros((train_steps, num_words + 1, vocab_size))
-inds = np.random.randint(vocab_size, size=(train_steps, num_words + 1, 1))
-
-for i in range(train_steps):
-  for j in range(num_words + 1):
-    Y[i, j, inds[i, j]] = 1
-
-# Do I need to set Y_train_in and Y_train_out?
-Y_in = Y[:, :num_words, :]
-Y_out = Y[:, 1:num_words + 1, :]
+# # What are we doing here?
+# X = np.random.randn(train_steps, image_size[0], image_size[1], image_size[2])
+# Y = np.zeros((train_steps, num_words + 1, vocab_size))
+# inds = np.random.randint(vocab_size, size=(train_steps, num_words + 1, 1))
+#
+# for i in range(train_steps):
+#   for j in range(num_words + 1):
+#     Y[i, j, inds[i, j]] = 1
+#
+# # Do I need to set Y_train_in and Y_train_out?
+# Y_in = Y[:, :num_words, :]
+# Y_out = Y[:, 1:num_words + 1, :]
 
 ################################
 # Build network
