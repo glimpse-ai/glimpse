@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import util.pixnet as pixnet
 import json
-from helpers.definitions import image_width, image_height
+from helpers.definitions import image_width, image_height, data_dir
 
 train_size = 10
 image_size = [image_width, image_height, 3]
@@ -10,9 +10,8 @@ num_words = 30  # attention
 batch_size = 4
 learning_rate = 1e-3
 
-with open('{}/vocab.json') as f:
+with open('{}/vocab.json'.format(data_dir)) as f:
   vocab_size = len(json.load(f))
-
 
 ################################=
 # Fake data
