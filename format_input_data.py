@@ -69,7 +69,9 @@ for set_name, image_names in image_sets.iteritems():
     
     i += 1
   
-  info['labels'] = np.array(info['labels'])  # Do these labels need to be converted to another datatype?
+  # TODO: modify this line based on which dtype info['labels'] actually ends up being
+  info['labels'] = np.array(info['labels'])
+  
   info['data'] = normalize(np.array(info['data']))
   
   pkl_path = '{}/{}.pkl'.format(data_dir, set_name)
