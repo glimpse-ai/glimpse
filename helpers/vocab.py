@@ -1,19 +1,28 @@
 import json
+import numpy as np
 from definitions import data_dir
 
-
+# Load JSON array of vocab words from file
 with open('{}/vocab.json'.format(data_dir)) as f:
   vocab = json.load(f)
+
+num_words = len(vocab)
+
+# Create a num_words_x_num_words placeholder matrix
+word_vectors = np.zeros([num_words, num_words])
 
 word_to_index = {}
 
 i = 0
 for c in vocab:
   word_to_index[c] = i
+  word_vectors[i][i] = 1
   i += 1
 
-index_to_word = {v: k for k, v in word_to_index.iteritems()}
+
+def word2vec(word):
+  return word_vectors[word_to_index.get(word)]
 
 
-def dml_to_ints(dml):
-  return [word_to_index.get(c) for c in dml]
+def dml2vec(dml):
+  return np.array([word2vec(c) for c in dml])
