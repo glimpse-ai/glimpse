@@ -1,32 +1,43 @@
 import tensorflow as tf
 import numpy as np
 import util.pixnet as pixnet
-import json
-from helpers.definitions import image_width, image_height, data_dir
-
-train_size = 10
+from helpers.vocab import vocab
+from helpers.definitions import image_width, image_height
+from deeplearning.util import extract_data, get_batch
+ 
 image_size = [image_width, image_height, 3]
+vocab_size = len(vocab)
 num_words = 30  # attention
-batch_size = 4
+batch_size = 4  # Reason this is 4?
 learning_rate = 1e-3
 
-with open('{}/vocab.json'.format(data_dir)) as f:
-  vocab_size = len(json.load(f))
-
 ################################=
-# Fake data
+# Extract data
 ################################
-X = np.random.randn(train_size, image_size[0], image_size[1], image_size[2])
-Y = np.zeros((train_size, num_words + 1, vocab_size))
-inds = np.random.randint(vocab_size, size=(train_size, num_words + 1, 1))
+X_train, Y_train = extract_data('train')
+X_val, Y_val = extract_data('val')
+X_test, Y_test = extract_data('test')
 
-for i in range(train_size):
+print 'X_train.shape = {}, Y_train.shape = {}'.format(X_train.shape, Y_train.shape)
+
+# Nbatch = 64 ?
+N = X_train.shape[0]  # => 10
+train_steps = N
+
+
+# What are we doing here?
+X = np.random.randn(train_steps, image_size[0], image_size[1], image_size[2])
+Y = np.zeros((train_steps, num_words + 1, vocab_size))
+inds = np.random.randint(vocab_size, size=(train_steps, num_words + 1, 1))
+
+for i in range(train_steps):
   for j in range(num_words + 1):
     Y[i, j, inds[i, j]] = 1
 
+# Do I need to set Y_train_in and Y_train_out?
 Y_in = Y[:, :num_words, :]
 Y_out = Y[:, 1:num_words + 1, :]
-
+=
 ################################
 # Build network
 ################################
