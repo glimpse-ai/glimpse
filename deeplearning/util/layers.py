@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 
 
-def conv2D(x, dims=[3, 3], filters=32, strides=[1, 1],
+def conv_2d(x, dims=[3, 3], filters=32, strides=[1, 1],
            std=1e-3, padding='SAME', activation=tf.identity, scope='conv2d', reuse=False):
   """
   args:
@@ -31,8 +31,8 @@ def conv2D(x, dims=[3, 3], filters=32, strides=[1, 1],
     if std == 'xavier':
       std = np.sqrt(2.0 / (s[1] * s[2] * s[3]))
     
-    W = tf.Variable(tf.random_normal(shape=shape, stddev=std),
-                    name='W')
+    W = tf.Variable(tf.random_normal(shape=shape, stddev=std), name='W')
+    
     b = tf.Variable(tf.ones([filters]) * std, name='b')
     
     o = tf.nn.convolution(x, W, padding, strides=strides)
@@ -44,7 +44,7 @@ def conv2D(x, dims=[3, 3], filters=32, strides=[1, 1],
     return a
 
 
-def fullyConnected(x, output_units=100, activation=tf.identity, std=1e-3,
+def fully_connected(x, output_units=100, activation=tf.identity, std=1e-3,
                    scope='fc', reuse=False):
   """
   args:
@@ -58,7 +58,7 @@ def fullyConnected(x, output_units=100, activation=tf.identity, std=1e-3,
           been created (i.e. reuse an earilier layer)
 
   returns:
-      a, (tf tensor), the output of the fullyConnected layer, has size
+      a, (tf tensor), the output of the fully_connected layer, has size
           (batch, output_units)
   """
   with tf.variable_scope(scope, reuse=reuse):

@@ -5,13 +5,16 @@ from helpers.vocab import vocab
 from helpers.definitions import image_width, image_height
 from deeplearning.util import extract_data, get_batch
  
+################################
+# Define parameters
+################################
 image_size = [image_width, image_height, 3]
 vocab_size = len(vocab)
 num_words = 30  # attention
 batch_size = 4  # Reason this is 4?
 learning_rate = 1e-3
 
-################################=
+################################
 # Extract data
 ################################
 X_train, Y_train = extract_data('train')
@@ -56,6 +59,9 @@ for i in range(len(output_words)):
                                                                  logits=output_words[i]))
 loss = loss / num_words
 
+################################=
+# Train network
+################################
 opt = tf.train.AdamOptimizer(learning_rate)
 train = opt.minimize(loss)
 
