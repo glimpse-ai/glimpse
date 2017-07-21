@@ -37,7 +37,7 @@ for i in range(train_steps):
 # Do I need to set Y_train_in and Y_train_out?
 Y_in = Y[:, :num_words, :]
 Y_out = Y[:, 1:num_words + 1, :]
-=
+
 ################################
 # Build network
 ################################
