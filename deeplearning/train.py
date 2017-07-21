@@ -23,10 +23,7 @@ X_test, Y_test = extract_data('test')
 
 print 'X_train.shape = {}, Y_train.shape = {}'.format(X_train.shape, Y_train.shape)
 
-# Set more params
-# Nbatch = 64 ?
-N = X_train.shape[0] # => 6
-train_steps = N
+train_steps = X_train.shape[0] # => 6
 
 # Do we still need this?
 # X = np.random.randn(train_steps, image_size[0], image_size[1], image_size[2])
