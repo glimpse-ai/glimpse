@@ -1,10 +1,14 @@
+import os
 import tensorflow as tf
 import numpy as np
 import util.pixnet as pixnet
 from helpers.vocab import vocab
-from helpers.definitions import image_width, image_height
+from helpers.definitions import image_width, image_height, data_dir
 from deeplearning.util import extract_data, get_batch
- 
+
+# TODO: Turn this into a class, and add hdf5 shit
+
+
 ################################
 # Define parameters
 ################################
@@ -13,6 +17,23 @@ vocab_size = len(vocab)
 num_words = 30  # attention
 batch_size = 4  # Reason this is 4?
 learning_rate = 1e-3
+model_name = 'model.ckpt'
+model_path = '{}/{}'.format(data_dir, model_name)
+save_every = 1000
+
+
+################################
+# Helpers
+################################
+def save_session(sess):
+  save_global_step()
+  saver.save(sess, model_path)
+  print 'Model saved.'
+
+
+def save_global_step():
+  # TODO: this
+  return
 
 ################################
 # Extract data
@@ -62,14 +83,35 @@ loss = loss / num_words
 opt = tf.train.AdamOptimizer(learning_rate)
 train = opt.minimize(loss)
 
+# Define our model writer and saver instances
+writer = tf.train.SummaryWriter(data_dir)
+saver = tf.train.Saver(max_to_keep=200)
+
+# Create us a new sesh
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
+# Restore session if model already exists
+if os.path.exists(model_path):
+  print 'Restoring previous model from {}'.format(model_name)
+  saver.restore(sess, model_name)
+  print 'Model restored.'
 
-# TODO: X, Y_in, and Y_out need to be changed to reference X_train, something, and something else
+merged_summaries = tf.merge_all_summaries()
 
-sess.run(train, {x_image: X[:4], x_words: Y_in[:4], y_words: Y_out[:4]})
-
-yhat = sess.run(output_words, {x_image: X[:4], x_words: Y_in[:4], y_words: Y_out[:4]})
-
-l = sess.run(loss, {x_image: X[:4], x_words: Y_in[:4], y_words: Y_out[:4]})
+for i in range(train_steps):
+  # Example of what I've done in the past:
+  # _, loss, summary = sess.run(ops + (merged_summaries,), feed_dict)
+  # self.writer.add_summary(summary, i)
+  
+  # TODO: X, Y_in, and Y_out need to be changed to reference X_train, something, and something else
+  # sess.run(train, {x_image: X[:4], x_words: Y_in[:4], y_words: Y_out[:4]})
+  #
+  # yhat = sess.run(output_words, {x_image: X[:4], x_words: Y_in[:4], y_words: Y_out[:4]})
+  #
+  # l = sess.run(loss, {x_image: X[:4], x_words: Y_in[:4], y_words: Y_out[:4]})
+  
+  i += 1
+  
+  if not i % save_every:
+    save_session(saver, sess)
