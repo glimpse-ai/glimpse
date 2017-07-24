@@ -9,3 +9,4 @@ params_dir = basedir + '/params'
 
 image_width = 640
 image_height = 1250
+image_type = 'RGB'

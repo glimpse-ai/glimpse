@@ -25,4 +25,4 @@ def word2vec(word):
 
 
 def dml2vec(dml):
-  return np.array([word2vec(c) for c in dml])
+  return [list(word2vec(c)) for c in dml]
