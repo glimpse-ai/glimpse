@@ -104,6 +104,8 @@ def create_grouped_datasets(f, set_name, data):
 
 
 if __name__ == '__main__':
+  # TODO: add --limit arg support
+  
   # Get split data by set ratio: train:val:test
   split_data = get_split_data()
 
