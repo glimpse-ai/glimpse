@@ -1,21 +1,33 @@
 import os
 from helpers.definitions import data_dir
 
-
 s3_glimpse_dir = os.environ.get('S3_GLIMPSE_DIR').rstrip('/')
 
-# Create data dir if not already there
-if not os.path.exists(data_dir):
-  os.mkdir(data_dir)
 
-# TODO: Update this following the use of hdf5
+def pull_s3_data_dir(dir_name):
+  compressed_fname = dir_name + '.tar.gz'
+  extracted_dest_path = '{}/{}/'.format(data_dir, dir_name)
+  
+  if os.path.exists(extracted_dest_path):
+    print '{} already exists...skipping'.format(extracted_dest_path)
+    return
+  
+  # Pull .tar.gz file from S3
+  os.system('wget {}/{}'.format(s3_glimpse_dir, compressed_fname))
+  
+  # Extract it
+  os.system('tar -zxvf {}'.format(compressed_fname))
+  
+  # Move folder into data dir
+  os.system('mv {}/ {}'.format(dir_name, extracted_dest_path))
+  
+  # Remove compressed file
+  os.system('rm {}'.format(compressed_fname))
 
-# Pull the following files from S3 bucket and move them into the data dir
-for f in ['train.pkl', 'val.pkl', 'test.pkl', 'vocab.json']:
-  dest_path = '{}/{}'.format(data_dir, f)
+
+if __name__ == '__main__':
+  # Create data dir if not already there
+  if not os.path.exists(data_dir):
+    os.mkdir(data_dir)
   
-  if os.path.exists(dest_path):
-    continue
-  
-  os.system('wget {}/{}'.format(s3_glimpse_dir, f))
-  os.system('mv {} {}'.format(f, dest_path))
+  [pull_s3_data_dir(f) for f in ['images', 'dml']]
