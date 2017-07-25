@@ -2,6 +2,8 @@ import os
 import json
 from helpers.definitions import data_dir, dml_dir
 
+pad_char = '?'
+
 
 def create_vocab():
   dml_files = [f for f in os.listdir(dml_dir) if f.endswith('.dml')]
@@ -22,6 +24,7 @@ def create_vocab():
 
   vocab = char_map.keys()
   vocab.sort()
+  vocab.append(pad_char)
   
   print 'Created vocab of length {}'.format(len(vocab))
 
