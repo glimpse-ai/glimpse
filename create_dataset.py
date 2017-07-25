@@ -1,4 +1,5 @@
 import os
+import sys
 import h5py
 from helpers.definitions import dataset_path, image_dir, dml_dir, image_ext, image_color_repr
 from helpers.vocab import dml2vec, pad_char
@@ -6,6 +7,7 @@ import numpy as np
 from math import ceil
 from scipy import misc
 from deeplearning.util import normalize
+from argparse import ArgumentParser
 
 # Specify params
 dt = np.float32
@@ -14,8 +16,18 @@ print_step = 100
 data_split = {'train': 0.6, 'val': 0.2, 'test': 0.2}
 
 
-def get_split_data():
+def parse_args():
+  parser = ArgumentParser()
+  parser.add_argument('--limit', type=int, default=None)
+  return parser.parse_args(sys.argv[1:])
+
+
+def get_split_data(limit=None):
   image_names = [n for n in os.listdir(image_dir) if n.endswith(image_ext)]
+  
+  if limit:
+    image_names = image_names[:limit]
+  
   image_names.sort()
   
   data = []
@@ -104,10 +116,10 @@ def create_grouped_datasets(f, set_name, data):
 
 
 if __name__ == '__main__':
-  # TODO: add --limit arg support
+  args = parse_args()
   
   # Get split data by set ratio: train:val:test
-  split_data = get_split_data()
+  split_data = get_split_data(limit=args.limit)
 
   # Open hdf5 dataset file
   dataset = h5py.File(dataset_path, 'w')
