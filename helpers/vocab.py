@@ -8,6 +8,8 @@ with open('{}/vocab.json'.format(data_dir)) as f:
 
 num_words = len(vocab)
 
+pad_char = vocab[-1]
+
 # Create a num_words_x_num_words placeholder matrix
 word_vectors = np.zeros([num_words, num_words])
 
