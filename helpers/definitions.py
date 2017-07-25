@@ -7,6 +7,7 @@ image_dir = data_dir + '/images'
 tmp_dir = basedir + '/tmp'
 params_dir = basedir + '/params'
 
+vocab_path = '{}/vocab.json'.format(data_dir)
 dataset_path = '{}/dataset.hdf5'.format(data_dir)
 
 image_width = 640

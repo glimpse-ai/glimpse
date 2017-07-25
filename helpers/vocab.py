@@ -1,13 +1,14 @@
 import json
 import numpy as np
-from definitions import data_dir
+from definitions import vocab_path
 
 # Load JSON array of vocab words from file
-with open('{}/vocab.json'.format(data_dir)) as f:
+with open(vocab_path) as f:
   vocab = json.load(f)
 
 num_words = len(vocab)
 
+# pad_char will be last char in vocab
 pad_char = vocab[-1]
 
 # Create a num_words_x_num_words placeholder matrix
