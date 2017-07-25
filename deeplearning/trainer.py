@@ -73,7 +73,7 @@ class Trainer:
       # _, loss, summary = sess.run(ops + (merged_summaries,), feed_dict)
       # self.writer.add_summary(summary, i)
   
-      # TODO: X, Y_in, and Y_out need to be changed to reference ffffX_train, sometfhing, and something else
+      # TODO: X, Y_in, and Y_out need to be changed to reference X_train, something, and something else
       # sess.run(train, {x_image: X[:4], x_words: Y_in[:4], y_words: Y_out[:4]})
       # yhat = sess.run(output_words, {x_image: X[:4], x_words: Y_in[:4], y_words: Y_out[:4]})
       # l = sess.run(loss, {x_image: X[:4], x_words: Y_in[:4], y_words: Y_out[:4]})
