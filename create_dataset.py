@@ -8,6 +8,8 @@ from math import ceil
 from scipy import misc
 from deeplearning.util import normalize
 from argparse import ArgumentParser
+from random import shuffle
+
 
 # Specify params
 dt = np.float32
@@ -24,11 +26,10 @@ def parse_args():
 
 def get_split_data(limit=None):
   image_names = [n for n in os.listdir(image_dir) if n.endswith(image_ext)]
+  shuffle(image_names)
   
   if limit:
     image_names = image_names[:limit]
-  
-  image_names.sort()
   
   data = []
   dml_lengths = []
@@ -59,7 +60,6 @@ def get_split_data(limit=None):
     if dml_len_diff > 0:
       info['dml'] += (pad_char * dml_len_diff)
 
-  # TODO: Make these splits random, not grouped
   train_split_index = int(ceil(data_split['train'] * num_data_entries))
   val_split_index = train_split_index + int(ceil(data_split['val'] * num_data_entries))
   
