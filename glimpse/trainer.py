@@ -76,7 +76,8 @@ class Trainer:
     X = self.X_train
     Y_in = self.Y_train[:, :self.params.num_words, :]
     Y_out = self.Y_train[:, 1:self.params.num_words + 1, :]
-
+    
+    # @gmaher: is 4 in the next three commands just the batch size?
     self.sess.run(train, {self.x_image: X[:4], self.x_words: Y_in[:4], self.y_words: Y_out[:4]})
     
     yhat = self.sess.run(self.output_words, {self.x_image: X[:4], self.x_words: Y_in[:4], self.y_words: Y_out[:4]})
