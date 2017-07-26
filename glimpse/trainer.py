@@ -28,7 +28,7 @@ class Trainer:
     
     # Set dynamic params
     setattr(self.params, 'vocab_size', len(vocab))
-    setattr(self.params, 'image_size', [image_width, image_height, len(image_color_repr)])
+    setattr(self.params, 'image_size', [image_height, image_width, len(image_color_repr)])
     setattr(self.params, 'train_size', self.X_train.shape[0])
     
     # Construct our network
@@ -49,10 +49,6 @@ class Trainer:
     batch_size = self.params.batch_size
     num_words = self.params.num_words
     vocab_size = self.params.vocab_size
-    
-    # @gmaher: self.params.image_size is currently [640, 1250, 3], while
-    # self.X_train.shape[1:] is (1250, 640, 3). If this is backwards, we can easily switch that around,
-    # cause self.params.image_size is currently defined on line 31.
     
     self.x_image = tf.placeholder(shape=[batch_size] + self.params.image_size, dtype=tf.float32)
     self.x_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
@@ -76,12 +72,10 @@ class Trainer:
     self.sess = tf.Session()
     self.sess.run(tf.global_variables_initializer())
 
-    # @gmaher: these 3 vars look correct?
+    # @gmaher: these 3 vars look correct? Do we just need to loop over range(self.params.train_size) ?
     X = self.X_train
     Y_in = self.Y_train[:, :self.params.num_words, :]
     Y_out = self.Y_train[:, 1:self.params.num_words + 1, :]
-    
-    # Note: we have access to self.params.train_size for looping
 
     self.sess.run(train, {self.x_image: X[:4], self.x_words: Y_in[:4], self.y_words: Y_out[:4]})
     
