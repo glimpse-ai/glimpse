@@ -1,6 +1,6 @@
 import h5py
 import tensorflow as tf
-from glimpse.helpers.definitions import dataset_path
+from glimpse.helpers.definitions import dataset_path, image_width, image_height, image_color_repr
 from glimpse.utils.vocab import vocab
 from glimpse.utils.params import Params
 from glimpse.utils import pixnet
@@ -28,7 +28,7 @@ class Trainer:
     
     # Set dynamic params
     setattr(self.params, 'vocab_size', len(vocab))
-    setattr(self.params, 'image_size', list(self.X_train.shape)[1:])
+    setattr(self.params, 'image_size', [image_width, image_height, len(image_color_repr)])
     setattr(self.params, 'train_size', self.X_train.shape[0])
     
     # Construct our network
