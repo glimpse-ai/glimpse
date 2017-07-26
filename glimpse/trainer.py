@@ -50,6 +50,10 @@ class Trainer:
     num_words = self.params.num_words
     vocab_size = self.params.vocab_size
     
+    # @gmaher: self.params.image_size is currently [640, 1250, 3], while
+    # self.X_train.shape[1:] is (1250, 640, 3). If this is backwards, we can easily switch that around,
+    # cause self.params.image_size is currently defined on line 31.
+    
     self.x_image = tf.placeholder(shape=[batch_size] + self.params.image_size, dtype=tf.float32)
     self.x_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
     self.y_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
