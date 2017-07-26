@@ -12,7 +12,7 @@ if not args.limit:
   print 'No limit specified. Exiting.'
   exit(1)
 
-new_data_dir = '{}/limit-{}'.format(data_dir, args.limit)
+new_data_dir = '{}/charlimit-{}'.format(data_dir, args.limit)
 new_dml_dir = '{}/dml'.format(new_data_dir)
 
 if os.path.exists(new_data_dir):

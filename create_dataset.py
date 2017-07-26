@@ -1,7 +1,7 @@
 import os
 import sys
 import h5py
-from glimpse.helpers.definitions import dataset_path, image_dir, dml_dir, image_ext, image_color_repr
+from glimpse.helpers.definitions import data_dir, image_dir, image_ext, image_color_repr
 from glimpse.utils.vocab import dml2vec, pad_char
 import numpy as np
 from math import ceil
@@ -9,6 +9,8 @@ from scipy import misc
 from argparse import ArgumentParser
 from random import shuffle
 
+# Change this to what you want
+dml_dir = data_dir + '/charlimit-15000/dml'
 
 # Specify params
 dt = np.float32 # for images and labels
@@ -28,27 +30,27 @@ def normalize(arr):
 
 
 def get_split_data(limit=None):
-  image_names = [n for n in os.listdir(image_dir) if n.endswith(image_ext)]
-  shuffle(image_names)
+  dml_names = [n for n in os.listdir(dml_dir) if n.endswith('.dml')]
+  shuffle(dml_names)
   
   if limit:
-    image_names = image_names[:limit]
-  
+    dml_names = dml_names[:limit]
+    
   data = []
   dml_lengths = []
   
-  # Group DML text with image names
-  for n in image_names:
-    dml_path = '{}/{}.dml'.format(dml_dir, n[:(-1 * len(image_ext))])
+  for n in dml_names:
+    image_name = n[:-4] + image_ext
     
-    if not os.path.exists(dml_path):
+    # continue if image doesn't exist
+    if not os.path.exists('{}/{}'.format(image_dir, image_name)):
       continue
     
-    with open(dml_path) as f:
+    with open('{}/{}'.format(dml_dir, n)) as f:
       dml = f.read()
 
     dml_lengths.append(len(dml))
-    data.append({'image_name': n, 'dml': dml})
+    data.append({'image_name': image_name, 'dml': dml})
   
   max_dml_length = max(dml_lengths)
   num_data_entries = len(data)
@@ -120,12 +122,16 @@ def create_grouped_datasets(f, set_name, data):
 
 if __name__ == '__main__':
   args = parse_args()
+  dataset_name = 'dataset'
+  
+  if args.limit:
+    dataset_name += '-{}'.format(args.limit)
   
   # Get split data by set ratio: train:val:test
   split_data = get_split_data(limit=args.limit)
 
   # Open hdf5 dataset file
-  dataset = h5py.File(dataset_path, 'w')
+  dataset = h5py.File('{}/{}.hdf5'.format(data_dir, dataset_name), 'w')
   
   # For each set, create a group, and add 'images', 'labels', and 'filenames' datasets
   for set_name, data in split_data.iteritems():
