@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from definitions import vocab_path
+from glimpse.helpers.definitions import vocab_path
 
 # Load JSON array of vocab words from file
 with open(vocab_path) as f:

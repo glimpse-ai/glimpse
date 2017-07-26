@@ -1,20 +1,19 @@
 import os
 import sys
 import h5py
-from helpers.definitions import dataset_path, image_dir, dml_dir, image_ext, image_color_repr
-from helpers.vocab import dml2vec, pad_char
+from glimpse.helpers.definitions import dataset_path, image_dir, dml_dir, image_ext, image_color_repr
+from glimpse.utils.vocab import dml2vec, pad_char
 import numpy as np
 from math import ceil
 from scipy import misc
-from deeplearning.util import normalize
 from argparse import ArgumentParser
 from random import shuffle
 
 
 # Specify params
-dt = np.float32
-unicode_dt = h5py.special_dtype(vlen=unicode)
-print_step = 100
+dt = np.float32 # for images and labels
+unicode_dt = h5py.special_dtype(vlen=unicode) # for filenames
+log_progress_step = 100
 data_split = {'train': 0.6, 'val': 0.2, 'test': 0.2}
 
 
@@ -22,6 +21,10 @@ def parse_args():
   parser = ArgumentParser()
   parser.add_argument('--limit', type=int, default=None)
   return parser.parse_args(sys.argv[1:])
+
+
+def normalize(arr):
+  return (1.0 * arr) / 255
 
 
 def get_split_data(limit=None):
@@ -85,7 +88,7 @@ def create_grouped_datasets(f, set_name, data):
   
   i = 1
   for info in data:
-    if not i % print_step:
+    if not i % log_progress_step:
       print 'Done with {} of {}.'.format(i, len(data))
     
     image_name = info['image_name']

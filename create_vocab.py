@@ -1,6 +1,6 @@
 import os
 import json
-from helpers.definitions import dml_dir, vocab_path
+from glimpse.helpers.definitions import dml_dir, vocab_path
 
 pad_char = '?'
 

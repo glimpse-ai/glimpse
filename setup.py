@@ -1,5 +1,5 @@
 import os
-from helpers.definitions import data_dir
+from glimpse.helpers.definitions import data_dir
 
 s3_glimpse_dir = os.environ.get('S3_GLIMPSE_DIR').rstrip('/')
 
