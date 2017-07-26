@@ -1,6 +1,8 @@
 import os
 import json
-from helpers.definitions import data_dir, dml_dir
+from glimpse.helpers.definitions import dml_dir, vocab_path
+
+pad_char = '?'
 
 
 def create_vocab():
@@ -22,10 +24,11 @@ def create_vocab():
 
   vocab = char_map.keys()
   vocab.sort()
+  vocab.append(pad_char)
   
   print 'Created vocab of length {}'.format(len(vocab))
 
-  with open('{}/vocab.json'.format(data_dir), 'w+') as f:
+  with open(vocab_path, 'w+') as f:
     f.write(json.dumps(vocab, sort_keys=True, indent=2))
   
 

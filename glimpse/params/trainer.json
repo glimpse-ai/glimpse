@@ -1,0 +1,5 @@
+{
+  "num_words": 30,
+  "batch_size": 4,
+  "learning_rate": 0.001
+}
