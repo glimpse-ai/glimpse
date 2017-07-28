@@ -1,5 +1,7 @@
 {
   "num_words": 30,
   "batch_size": 4,
-  "learning_rate": 0.001
+  "learning_rate": 0.001,
+  "train_steps": 10000,
+  "print_every": 100
 }
