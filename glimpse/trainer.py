@@ -1,8 +1,8 @@
+import os
 import h5py
 import tensorflow as tf
 import numpy as np
-from glimpse.helpers.definitions import dataset_path, image_width, image_height, image_color_repr
-from glimpse.utils.vocab import vocab
+from glimpse.helpers.definitions import dataset_path, model_dir, model_path, model_name
 from glimpse.utils.params import Params
 from glimpse.utils import pixnet
 
@@ -30,18 +30,16 @@ class Trainer:
     self.minimize_loss = None
     self.sess = None
 
+    self.saver = None
+
     # Read hdf5 dataset from disk
     self.extract_data()
-
-    # Set dynamic params
-    setattr(self.params, 'vocab_size', len(vocab))
-    setattr(self.params, 'image_size', [image_height, image_width, len(image_color_repr)])
-    setattr(self.params, 'train_size', self.X_train.shape[0])
 
     # Construct our network
     self.build_network()
 
   def extract_data(self):
+    print 'Extracting data from dataset...'
     dataset = h5py.File(dataset_path, 'r')
 
     train_set = dataset.get('train')
@@ -58,6 +56,7 @@ class Trainer:
     self.test_label_lens = test_set.get('label_lens')
 
   def build_network(self):
+    print 'Building network...'
     batch_size = self.params.batch_size
     num_words = self.params.num_words
     vocab_size = self.params.vocab_size
@@ -96,36 +95,68 @@ class Trainer:
     y_out = np.zeros((self.params.batch_size, self.params.num_words, self.params.vocab_size))
 
     for i in range(self.params.batch_size):
-        lab_len = self.train_label_lens[inds[i]]-self.params.num_words-1
-        start = np.random.randint(lab_len)
-        end = start + self.params.num_words
-        shifted_start = start + 1
-        shifted_end = end + 1
+      lab_len = self.train_label_lens[inds[i]] - self.params.num_words - 1
+      start = np.random.randint(lab_len)
+      end = start + self.params.num_words
+      shifted_start = start + 1
+      shifted_end = end + 1
 
-        y_in[i] = y[i, start:end, :]
-        y_out[i] = y[i, shifted_start:shifted_end, :]
+      y_in[i] = y[i, start:end, :]
+      y_out[i] = y[i, shifted_start:shifted_end, :]
 
     return x, y_in, y_out
 
   def train(self):
+    # Create a new session and initialize vars
     self.sess = tf.Session()
     self.sess.run(tf.global_variables_initializer())
 
+    # Create our model saver
+    self.saver = tf.train.Saver(max_to_keep=200)  # Why 200? No clue
+
+    # Restore the previous model if it exists
+    self.manage_previous_model()
+
+    print 'Starting to train. Press Ctrl+C to save and exit.'
+
     try:
-      for it in range(self.params.train_steps):
-        print it
+      for it in range(self.params.train_steps)[self.params.gstep:]:
+        print '{}/{}'.format(it, self.params.train_steps)
 
         x_in, y_in, y_lab = self.get_batch()
 
         self.sess.run(self.minimize_loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab})
 
-        if it % self.params.print_every == 0:
+        self.params.gstep += 1
+
+        if self.params.gstep % self.params.print_every == 0:
           l = self.sess.run(self.loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab})
           print "iteration {}: training loss = {}".format(it, l)
-    except KeyboardInterrupt:
-      # save model
-      print 'Bye Bye.'
-      exit(1)
-    except BaseException, e:
-      print 'Unexpected Error: {}'.format(e.message)
-      exit(1)
+
+        # Reached a checkpoint
+        if self.params.gstep % self.params.save_every == 0:
+          self.save_session()
+
+    except (KeyboardInterrupt, SystemExit):
+      print('Interruption detected, exiting the program...')
+
+    self.save_session()
+
+  def manage_previous_model(self):
+    # Create model dir if not already there
+    if not os.path.exists(model_dir):
+      os.mkdir(model_dir)
+
+    for f in os.listdir(model_dir):
+      if f.startswith(model_name):
+        print 'Previous model found. Restoring...'
+        self.saver.restore(self.sess, model_path)
+        break
+
+  def save_session(self):
+    print 'Saving model and its params...'
+    # Save model params
+    self.params.save()
+
+    # Save session
+    self.saver.save(self.sess, model_path)

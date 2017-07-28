@@ -16,4 +16,5 @@ image_ext = '.png'
 image_color_repr = 'RGB'
 
 model_name = 'model.ckpt'
-model_path = '{}/{}'.format(data_dir, model_name)
+model_dir = data_dir + '/model'
+model_path = '{}/{}'.format(model_dir, model_name)
