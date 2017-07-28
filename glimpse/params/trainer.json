@@ -1,7 +1,15 @@
 {
-  "num_words": 30,
-  "batch_size": 4,
-  "learning_rate": 0.001,
-  "train_steps": 10000,
-  "print_every": 100
+  "batch_size": 4, 
+  "gstep": 8, 
+  "image_size": [
+    1250, 
+    640, 
+    3
+  ], 
+  "learning_rate": 0.001, 
+  "num_words": 30, 
+  "print_every": 100, 
+  "save_every": 500, 
+  "train_steps": 10000, 
+  "vocab_size": 50
 }
