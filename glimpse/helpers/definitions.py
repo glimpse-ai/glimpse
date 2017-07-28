@@ -6,7 +6,7 @@ dml_dir = data_dir + '/dml'
 image_dir = data_dir + '/images'
 params_dir = basedir + '/glimpse/params'
 
-vocab_path = '{}/vocab.json.1'.format(data_dir)
+vocab_path = '{}/vocab.json'.format(data_dir)
 
 dataset_path = '{}/dataset-100.hdf5'.format(data_dir)
 

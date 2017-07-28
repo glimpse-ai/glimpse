@@ -60,7 +60,12 @@ def get_split_data(limit=None):
   
   # Pad DML entries to that of longest length
   for info in data:
-    dml_len_diff = max_dml_length - len(info['dml'])
+    dml_len = len(info['dml'])
+    
+    # store original dml length
+    info['dml_len'] = dml_len
+    
+    dml_len_diff = max_dml_length - dml_len
     
     if dml_len_diff > 0:
       info['dml'] += (pad_char * dml_len_diff)
@@ -86,6 +91,7 @@ def create_grouped_datasets(f, set_name, data):
   
   images = []
   labels = []
+  label_len = []
   filenames = []
   
   i = 1
@@ -105,16 +111,21 @@ def create_grouped_datasets(f, set_name, data):
     # Add DML as array to labels path
     dml_as_array = dml2vec(info['dml'])
     labels.append(dml_as_array)
-
+    
+    # Add label_len as key (non-padded length)
+    label_len.append(info['dml_len'])
+    
     i += 1
 
   # Convert our lists to numpy arrays and normalize the image array
   images = normalize(np.array(images, dtype=dt))
   labels = np.array(labels, dtype=dt)
+  label_len = np.array(label_len, dtype='i')
 
   # Create datasets for this group
   g.create_dataset('images', data=images)
   g.create_dataset('labels', data=labels)
+  g.create_dataset('label_len', data=label_len)
   g.create_dataset('filenames', data=filenames, dtype=unicode_dt)
 
   print 'Done formatting {} dataset.'.format(set_name)
