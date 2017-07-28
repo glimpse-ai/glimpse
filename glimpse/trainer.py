@@ -19,14 +19,16 @@ class Trainer:
     self.x_image = None
     self.x_words = None
     self.y_words = None
+
+    self.train_label_lens = None
+    self.val_label_lens = None
+    self.test_label_lens = None
     
     self.loss = 0.0
-    self.sess = None
-    
     self.output_words = None
-    
     self.opt = None
     self.minimize_loss = None
+    self.sess = None
 
     # Read hdf5 dataset from disk
     self.extract_data()
@@ -49,6 +51,11 @@ class Trainer:
     self.X_train, self.Y_train = train_set.get('images'), train_set.get('labels')
     self.X_val, self.Y_val = val_set.get('images'), val_set.get('labels')
     self.X_test, self.Y_test = test_set.get('images'), test_set.get('labels')
+    
+    # Non-padded label lengths
+    self.train_label_lens = train_set.get('label_lens')
+    self.val_label_lens = val_set.get('label_lens')
+    self.test_label_lens = test_set.get('label_lens')
 
   def build_network(self):
     batch_size = self.params.batch_size
