@@ -90,20 +90,19 @@ class Trainer:
 
     # Get random starting point in the dml string to use as input
     # The labels are then the starting point shifted one up
-    max_dml_length = y.shape[1] - self.params.num_words - 1
-    starts = np.random.choice(range(max_dml_length), size=self.params.batch_size, replace=False)
     
     y_in = np.zeros((self.params.batch_size, self.params.num_words, self.params.vocab_size))
     y_out = np.zeros((self.params.batch_size, self.params.num_words, self.params.vocab_size))
 
     for i in range(self.params.batch_size):
-        start = starts[i]
-        end = start + self.params.num_words
-        shifted_start = start + 1
-        shifted_end = end + 1
-        
-        y_in[i] = y[i, start:end, :]
-        y_out[i] = y[i, shifted_start:shifted_end, :]
+      lab_len = self.train_label_lens[inds[i]] - self.params.num_words - 1
+      start = np.random.randint(lab_len)
+      end = start + self.params.num_words
+      shifted_start = start + 1
+      shifted_end = end + 1
+      
+      y_in[i] = y[i, start:end, :]
+      y_out[i] = y[i, shifted_start:shifted_end, :]
 
     return x, y_in, y_out
 
