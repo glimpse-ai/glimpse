@@ -23,7 +23,7 @@ class Trainer:
     self.train_label_lens = None
     self.val_label_lens = None
     self.test_label_lens = None
-    
+
     self.loss = 0.0
     self.output_words = None
     self.opt = None
@@ -31,7 +31,7 @@ class Trainer:
     self.sess = None
 
     self.saver = None
-  
+
     # Read hdf5 dataset from disk
     self.extract_data()
 
@@ -49,7 +49,7 @@ class Trainer:
     self.X_train, self.Y_train = train_set.get('images'), train_set.get('labels')
     self.X_val, self.Y_val = val_set.get('images'), val_set.get('labels')
     self.X_test, self.Y_test = test_set.get('images'), test_set.get('labels')
-    
+
     # Non-padded label lengths
     self.train_label_lens = train_set.get('label_lens')
     self.val_label_lens = val_set.get('label_lens')
@@ -84,13 +84,13 @@ class Trainer:
 
     inds = list(np.random.choice(range(N), size=self.params.batch_size, replace=False))
     inds.sort()
-    
+
     x = self.X_train[inds]
     y = self.Y_train[inds]
 
     # Get random starting point in the dml string to use as input
     # The labels are then the starting point shifted one up
-    
+
     y_in = np.zeros((self.params.batch_size, self.params.num_words, self.params.vocab_size))
     y_out = np.zeros((self.params.batch_size, self.params.num_words, self.params.vocab_size))
 
@@ -100,7 +100,7 @@ class Trainer:
       end = start + self.params.num_words
       shifted_start = start + 1
       shifted_end = end + 1
-      
+
       y_in[i] = y[i, start:end, :]
       y_out[i] = y[i, shifted_start:shifted_end, :]
 
@@ -113,7 +113,7 @@ class Trainer:
 
     # Create our model saver
     self.saver = tf.train.Saver(max_to_keep=200)  # Why 200? No clue
-    
+
     # Restore the previous model if it exists
     self.manage_previous_model()
 
@@ -122,31 +122,31 @@ class Trainer:
     try:
       for it in range(self.params.train_steps)[self.params.gstep:]:
         print '{}/{}'.format(it, self.params.train_steps)
-        
+
         x_in, y_in, y_lab = self.get_batch()
-        
+
         self.sess.run(self.minimize_loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab})
-        
+
         self.params.gstep += 1
-        
+
         if self.params.gstep % self.params.print_every == 0:
           l = self.sess.run(self.loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab})
           print "iteration {}: training loss = {}".format(it, l)
-  
+
         # Reached a checkpoint
         if self.params.gstep % self.params.save_every == 0:
           self.save_session()
-        
+
     except (KeyboardInterrupt, SystemExit):
       print('Interruption detected, exiting the program...')
-    
+
     self.save_session()
 
   def manage_previous_model(self):
     # Create model dir if not already there
     if not os.path.exists(model_dir):
       os.mkdir(model_dir)
-    
+
     for f in os.listdir(model_dir):
       if f.startswith(model_name):
         print 'Previous model found. Restoring...'
@@ -157,6 +157,6 @@ class Trainer:
     print 'Saving model and its params...'
     # Save model params
     self.params.save()
-    
+
     # Save session
     self.saver.save(self.sess, model_path)
