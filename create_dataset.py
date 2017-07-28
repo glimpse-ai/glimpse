@@ -125,7 +125,7 @@ def create_grouped_datasets(f, set_name, data):
   # Create datasets for this group
   g.create_dataset('images', data=images)
   g.create_dataset('labels', data=labels)
-  g.create_dataset('label_len', data=label_len)
+  g.create_dataset('label_lens', data=label_len)
   g.create_dataset('filenames', data=filenames, dtype=unicode_dt)
 
   print 'Done formatting {} dataset.'.format(set_name)
