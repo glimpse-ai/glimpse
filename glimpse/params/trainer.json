@@ -9,7 +9,7 @@
   "learning_rate": 0.0001,
   "num_words": 30,
   "print_every": 1,
-  "save_every": 500, 
+  "save_every": 100,
   "train_steps": 10000, 
   "vocab_size": 50
 }
