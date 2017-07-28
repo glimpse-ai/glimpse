@@ -105,13 +105,21 @@ class Trainer:
     self.sess = tf.Session()
     self.sess.run(tf.global_variables_initializer())
 
-    for it in range(self.params.train_steps):
-      print it
-      
-      x_in, y_in, y_lab = self.get_batch()
-      
-      self.sess.run(self.minimize_loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab})
-      
-      if it % self.params.print_every == 0:
-        l = self.sess.run(self.loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab})
-        print "iteration {}: training loss = {}".format(it, l)
+    try:
+      for it in range(self.params.train_steps):
+        print it
+        
+        x_in, y_in, y_lab = self.get_batch()
+        
+        self.sess.run(self.minimize_loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab})
+        
+        if it % self.params.print_every == 0:
+          l = self.sess.run(self.loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab})
+          print "iteration {}: training loss = {}".format(it, l)
+    except KeyboardInterrupt:
+      # save model
+      print 'Bye Bye.'
+      exit(1)
+    except BaseException, e:
+      print 'Unexpected Error: {}'.format(e.message)
+      exit(1)
