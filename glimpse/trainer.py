@@ -23,7 +23,7 @@ class Trainer:
     self.train_label_lens = None
     self.val_label_lens = None
     self.test_label_lens = None
-    
+
     self.loss = 0.0
     self.output_words = None
     self.opt = None
@@ -51,7 +51,7 @@ class Trainer:
     self.X_train, self.Y_train = train_set.get('images'), train_set.get('labels')
     self.X_val, self.Y_val = val_set.get('images'), val_set.get('labels')
     self.X_test, self.Y_test = test_set.get('images'), test_set.get('labels')
-    
+
     # Non-padded label lengths
     self.train_label_lens = train_set.get('label_lens')
     self.val_label_lens = val_set.get('label_lens')
@@ -85,24 +85,23 @@ class Trainer:
 
     inds = list(np.random.choice(range(N), size=self.params.batch_size, replace=False))
     inds.sort()
-    
+
     x = self.X_train[inds]
     y = self.Y_train[inds]
 
     # Get random starting point in the dml string to use as input
     # The labels are then the starting point shifted one up
-    max_dml_length = y.shape[1] - self.params.num_words - 1
-    starts = np.random.choice(range(max_dml_length), size=self.params.batch_size, replace=False)
-    
+
     y_in = np.zeros((self.params.batch_size, self.params.num_words, self.params.vocab_size))
     y_out = np.zeros((self.params.batch_size, self.params.num_words, self.params.vocab_size))
 
     for i in range(self.params.batch_size):
-        start = starts[i]
+        lab_len = self.train_label_lens[inds[i]]-self.params.num_words-1
+        start = np.random.randint(lab_len)
         end = start + self.params.num_words
         shifted_start = start + 1
         shifted_end = end + 1
-        
+
         y_in[i] = y[i, start:end, :]
         y_out[i] = y[i, shifted_start:shifted_end, :]
 
@@ -115,11 +114,11 @@ class Trainer:
     try:
       for it in range(self.params.train_steps):
         print it
-        
+
         x_in, y_in, y_lab = self.get_batch()
-        
+
         self.sess.run(self.minimize_loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab})
-        
+
         if it % self.params.print_every == 0:
           l = self.sess.run(self.loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab})
           print "iteration {}: training loss = {}".format(it, l)
