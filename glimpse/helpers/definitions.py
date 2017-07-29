@@ -18,3 +18,5 @@ image_color_repr = 'RGB'
 model_name = 'model.ckpt'
 model_dir = data_dir + '/model'
 model_path = '{}/{}'.format(model_dir, model_name)
+
+tmp_dir = basedir + '/tmp'
