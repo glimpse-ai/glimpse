@@ -6,3 +6,4 @@ data/
 .idea/
 tmp/
 *.pem
+bin/
