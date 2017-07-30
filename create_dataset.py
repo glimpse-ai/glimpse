@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 from random import shuffle
 
 # Change this to what you want
-dml_dir = data_dir + '/tmpdml'
+dml_dir = data_dir + '/charlimit-8000/dml'
 
 # Specify params
 dt = np.float32 # for images and labels
