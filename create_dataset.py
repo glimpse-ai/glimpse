@@ -1,8 +1,8 @@
 import os
 import sys
 import h5py
-from glimpse.helpers.definitions import data_dir, image_dir, image_ext, image_color_repr
-from glimpse.utils.vocab import dml2vec, pad_char
+from glimpse.helpers.definitions import data_dir, image_dir, image_color_repr, image_height, image_width
+from glimpse.utils.vocab import dml2vec, pad_char, vocab
 import numpy as np
 from math import ceil
 from scipy import misc
@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 from random import shuffle
 
 # Change this to what you want
-dml_dir = data_dir + '/charlimit-8000/dml'
+dml_dir = data_dir + '/tmpdml'
 
 # Specify params
 dt = np.float32 # for images and labels
@@ -30,111 +30,55 @@ def normalize(arr):
 
 
 def get_split_data(limit=None):
-  dml_names = [n for n in os.listdir(dml_dir) if n.endswith('.dml')]
-  shuffle(dml_names)
+  names = [n[:-4] for n in os.listdir(dml_dir) if n.endswith('.dml') and os.path.exists('{}/{}.png'.format(image_dir, n[:-4]))]
+  shuffle(names)
   
   if limit:
-    dml_names = dml_names[:limit]
-    
-  data = []
-  dml_lengths = []
-  
-  for n in dml_names:
-    image_name = n[:-4] + image_ext
-    
-    # continue if image doesn't exist
-    if not os.path.exists('{}/{}'.format(image_dir, image_name)):
-      continue
-    
-    with open('{}/{}'.format(dml_dir, n)) as f:
-      dml = f.read()
+    names = names[:limit]
 
-    dml_lengths.append(len(dml))
-    data.append({'image_name': image_name, 'dml': dml})
-  
-  max_dml_length = max(dml_lengths)
-  num_data_entries = len(data)
-  
-  print 'Found {} total Image-DML pairs.'.format(num_data_entries)
-  print 'Padding all DML to length: {}'.format(max_dml_length)
-  
-  # Pad DML entries to that of longest length
-  for info in data:
-    dml_len = len(info['dml'])
-    
-    # store original dml length
-    info['dml_len'] = dml_len
-    
-    dml_len_diff = max_dml_length - dml_len
-    
-    if dml_len_diff > 0:
-      info['dml'] += (pad_char * dml_len_diff)
+  train_split_index = int(ceil(data_split['train'] * len(names)))
+  val_split_index = train_split_index + int(ceil(data_split['val'] * len(names)))
 
-  train_split_index = int(ceil(data_split['train'] * num_data_entries))
-  val_split_index = train_split_index + int(ceil(data_split['val'] * num_data_entries))
+  split = {}
+  split['train'] = names[:train_split_index]
+  split['val'] = names[train_split_index:val_split_index]
+  split['test'] = names[val_split_index:]
   
-  train_data = data[:train_split_index]
-  val_data = data[train_split_index:val_split_index]
-  test_data = data[val_split_index:]
-
-  return {
-    'train': train_data,
-    'val': val_data,
-    'test': test_data
-  }
+  return split
 
 
-def create_grouped_datasets(f, set_name, data):
+def create_grouped_datasets(f, set_name, filenames, max_dml_len):
   g = f.create_group(set_name)
+  num_records = len(filenames)
+  label_len = max_dml_len + 1
   
-  print 'Formatting {} dataset with {} records...'.format(set_name, len(data))
+  print 'Formatting {} dataset with {} records...'.format(set_name, num_records)
   
-  images = []
-  labels = []
-  label_len = []
-  filenames = []
+  images = g.create_dataset('images', shape=(num_records, image_height, image_width, len(image_color_repr)), dtype=np.float32)
+  labels = g.create_dataset('labels', shape=(num_records, label_len, len(vocab)), dtype=np.float32)
+  label_lens = g.create_dataset('label_lens', shape=(num_records,), dtype='i')
+  g.create_dataset('filenames', data=filenames, dtype=unicode_dt)
   
-  i = 1
-  for info in data:
-    if not i % log_progress_step:
-      print 'Done with {} of {}.'.format(i, len(data))
+  i = 0
+  for n in filenames:
+    if (i + 1) % log_progress_step == 0:
+      print 'Done with {} of {}.'.format(i, num_records)
     
-    image_name = info['image_name']
+    images[i] = misc.imread('{}/{}.png'.format(image_dir, n), mode=image_color_repr)
     
-    # Add generic filename to filenames list
-    filenames.append(image_name[:(-1 * len(image_ext))].encode('utf8'))
-    
-    # Add image as array to images list
-    image_as_array = misc.imread('{}/{}'.format(image_dir, image_name), mode=image_color_repr)
-    images.append(image_as_array)
-    
-    # Add DML as array to labels path
-    dml_as_array = dml2vec(info['dml'])
-    labels.append(dml_as_array)
-    
-    # Add label_len as key (non-padded length)
-    label_len.append(info['dml_len'])
+    with open('{}/{}.dml'.format(dml_dir, n)) as dml_file:
+      dml = dml_file.read()
+      dml_len = len(dml)
+      label_lens[i] = dml_len
+      labels[i] = dml2vec(dml + ((label_len - dml_len) * pad_char))
     
     i += 1
-
-  # Convert our lists to numpy arrays and normalize the image array
-  images = normalize(np.array(images, dtype=dt))
-  labels = np.array(labels, dtype=dt)
-  label_len = np.array(label_len, dtype='i')
-
-  # Create datasets for this group
-  g.create_dataset('images', data=images)
-  g.create_dataset('labels', data=labels)
-  g.create_dataset('label_lens', data=label_len)
-  g.create_dataset('filenames', data=filenames, dtype=unicode_dt)
-
-  print 'Done formatting {} dataset.'.format(set_name)
 
 
 if __name__ == '__main__':
   args = parse_args()
   dataset_name = 'dataset'
-  
+
   if args.limit:
     dataset_name += '-{}'.format(args.limit)
   
@@ -143,10 +87,18 @@ if __name__ == '__main__':
 
   # Open hdf5 dataset file
   dataset = h5py.File('{}/{}.hdf5'.format(data_dir, dataset_name), 'w')
+  all_dml_names = split_data['train'] + split_data['val'] + split_data['test']
+  
+  lengths = []
+  for n in all_dml_names:
+    with open('{}/{}.dml'.format(dml_dir, n)) as f:
+      lengths.append(len(f.read()))
+
+  max_dml_len = max(lengths)
   
   # For each set, create a group, and add 'images', 'labels', and 'filenames' datasets
-  for set_name, data in split_data.iteritems():
-    create_grouped_datasets(dataset, set_name, data)
+  for set_name, filenames in split_data.iteritems():
+    create_grouped_datasets(dataset, set_name, filenames, max_dml_len)
   
   # Close dataset file
   dataset.close()
