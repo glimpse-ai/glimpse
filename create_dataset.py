@@ -6,6 +6,8 @@ from glimpse.utils.vocab import dml2vec, pad_char, vocab
 import numpy as np
 from math import ceil
 from scipy import misc
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 from argparse import ArgumentParser
 from random import shuffle
 
