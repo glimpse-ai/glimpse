@@ -102,9 +102,13 @@ class Trainer:
     y_out = np.zeros((self.params.batch_size, self.params.num_words, self.params.vocab_size))
     y_past = np.zeros((self.params.batch_size, self.params.max_length, self.params.vocab_size))
 
-
     for i in range(self.params.batch_size):
       lab_len = self.train_label_lens[inds[i]] - self.params.num_words - 1
+
+      if lab_len <= 0:
+        print 'Label length <= 0...skipping index {}'.format(inds[i])
+        return None
+
       start = np.random.randint(lab_len)
       end = start + self.params.num_words
       shifted_start = start + 1
@@ -115,6 +119,7 @@ class Trainer:
 
       y_past[i,:start,:] = y[i,:start,:]
       y_past[i,start:,self.params.vocab_size-1] = 1.0
+
     return x, y_in, y_out, y_past
 
   def train(self):
@@ -133,8 +138,14 @@ class Trainer:
     try:
       for it in range(self.params.train_steps)[self.params.gstep:]:
         print '{}/{}'.format(it, self.params.train_steps)
-
-        x_in, y_in, y_lab, y_past = self.get_batch()
+          
+        batch_info = self.get_batch()
+        
+        if not batch_info:
+          self.params.gstep += 1
+          continue
+        
+        x_in, y_in, y_lab, y_past = batch_info
 
         self.sess.run(self.minimize_loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab,
             self.y_past : y_past})
