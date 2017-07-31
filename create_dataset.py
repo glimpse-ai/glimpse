@@ -64,7 +64,7 @@ def create_grouped_datasets(f, set_name, filenames, max_dml_len):
   i = 0
   for n in filenames:
     if (i + 1) % log_progress_step == 0:
-      print 'Done with {} of {}.'.format(i, num_records)
+      print 'Done with {} of {}.'.format(i + 1, num_records)
     
     images[i] = misc.imread('{}/{}.png'.format(image_dir, n), mode=image_color_repr)
     
