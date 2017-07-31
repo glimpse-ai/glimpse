@@ -55,19 +55,26 @@ class Trainer:
     self.val_label_lens = val_set.get('label_lens')
     self.test_label_lens = test_set.get('label_lens')
 
+    #get max string length
+    self.params.max_length = self.Y_train.shape[1]
+
   def build_network(self):
     print 'Building network...'
     batch_size = self.params.batch_size
     num_words = self.params.num_words
     vocab_size = self.params.vocab_size
+    max_length = self.params.max_length
 
     self.x_image = tf.placeholder(shape=[batch_size] + self.params.image_size, dtype=tf.float32)
     self.x_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
     self.y_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
+    self.y_past = tf.placeholder(shape=[batch_size, max_length, vocab_size], dtype=tf.float32)
 
     v = pixnet.conv_block(self.x_image, batch_size=batch_size)
 
-    self.output_words = pixnet.lstm_block(self.x_words, v, vocab_size=vocab_size,
+    t = pixnet.conv_text(self.y_past, batch_size=batch_size)
+
+    self.output_words = pixnet.lstm_block(self.x_words, v, t, vocab_size=vocab_size,
                                      num_words=num_words, batch_size=batch_size)
 
     for i in range(len(self.output_words)):
@@ -93,6 +100,8 @@ class Trainer:
 
     y_in = np.zeros((self.params.batch_size, self.params.num_words, self.params.vocab_size))
     y_out = np.zeros((self.params.batch_size, self.params.num_words, self.params.vocab_size))
+    y_past = np.zeros((self.params.batch_size, self.params.max_length, self.params.vocab_size))
+
 
     for i in range(self.params.batch_size):
       lab_len = self.train_label_lens[inds[i]] - self.params.num_words - 1
@@ -104,7 +113,9 @@ class Trainer:
       y_in[i] = y[i, start:end, :]
       y_out[i] = y[i, shifted_start:shifted_end, :]
 
-    return x, y_in, y_out
+      y_past[i,:start,:] = y[i,:start,:]
+      y_past[i,start:,self.params.vocab_size-1] = 1.0
+    return x, y_in, y_out, y_past
 
   def train(self):
     # Create a new session and initialize vars
@@ -123,14 +134,16 @@ class Trainer:
       for it in range(self.params.train_steps)[self.params.gstep:]:
         print '{}/{}'.format(it, self.params.train_steps)
 
-        x_in, y_in, y_lab = self.get_batch()
+        x_in, y_in, y_lab, y_past = self.get_batch()
 
-        self.sess.run(self.minimize_loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab})
+        self.sess.run(self.minimize_loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab,
+            self.y_past : y_past})
 
         self.params.gstep += 1
 
         if self.params.gstep % self.params.print_every == 0:
-          l = self.sess.run(self.loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab})
+          l = self.sess.run(self.loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab,
+            self.y_past : y_past})
           print "iteration {}: training loss = {}".format(it, l)
 
         # Reached a checkpoint
