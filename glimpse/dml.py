@@ -47,11 +47,15 @@ class DML:
     def opening_no_attrs(m):
       return '<{}>'.format(tag_for_val(m.group(1)))
   
+    def no_close_required_no_attrs(m):
+      return '<{}/>'.format(tag_for_val(m.group(1)))
+
     def closing(m):
       return '</{}>'.format(tag_for_val(m.group(1)))
   
     dml = re.sub('<([0-9]+) ', opening_with_attrs, dml)
     dml = re.sub('<([0-9]+)>', opening_no_attrs, dml)
+    dml = re.sub('<([0-9]+)/>', no_close_required_no_attrs, dml)
     dml = re.sub('</([0-9]+)>', closing, dml)
     
     return dml
