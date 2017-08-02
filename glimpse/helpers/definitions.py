@@ -20,3 +20,10 @@ model_dir = data_dir + '/model'
 model_path = '{}/{}'.format(model_dir, model_name)
 
 tmp_dir = basedir + '/tmp'
+
+translators_dir = basedir + '/glimpse/translators'
+
+placeholder_image_name = 'placeholder.jpg'
+placeholder_input_text = 'Enter text'
+
+templates_dir = basedir + '/glimpse/templates'
