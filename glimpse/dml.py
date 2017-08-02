@@ -116,17 +116,17 @@ class DML:
         el.attrs = attrs
 
     return soup.encode('utf-8')
-  
+
   @staticmethod
   def prettify(html):
     return soupify(html).prettify().encode('utf-8')
-  
+
   def tag_for_val(self, val):
     return self.tags_map.get(val) or val
-  
+
   def attr_name_for_val(self, val):
     return self.attrs_map.get(val) or val
-  
+
   def attr_val_for_val(self, attr_name, val):
     if attr_name == 'class' and val:
       encoded_classes = [c.strip() for c in val.split(',')]
@@ -135,5 +135,8 @@ class DML:
 
       if class_str:
         return class_str
+
+    elif attr_name in ['background-image', 'list-style-image']:
+      return "url('')"
       
     return (self.attr_vals_map.get(attr_name) or {}).get(val) or val
