@@ -1,6 +1,6 @@
 import os
 from glimpse.helpers.definitions import data_dir, tmp_dir
-from glimpse.dml import DML
+from glimpse.translators import dml2html
 from glimpse.utils.vocab import dml2vec, vec2dml
 
 dml_dir = data_dir + '/charlimit-8000/dml'
@@ -13,8 +13,6 @@ if not os.path.exists(results_dir):
   os.mkdir(results_dir)
 
 dml_names = [n for n in os.listdir(dml_dir) if n.endswith('.dml')][::250]
-
-dml = DML()
 
 i = 1
 for dml_name in dml_names:
@@ -33,9 +31,7 @@ for dml_name in dml_names:
   # Convert output vector to DML
   output_dml = vec2dml(output_vec)
   
-  dml.source = output_dml
-  
-  html = dml.to_html()
+  html = dml2html.translate(output_dml)
   
   with open('{}/{}.html'.format(results_dir, dml_name[:-4]), 'w+') as f:
     f.write(html)
