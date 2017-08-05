@@ -112,7 +112,7 @@ class Trainer:
     self.sess.run(tf.global_variables_initializer())
 
     # Create our model saver
-    self.saver = tf.train.Saver(max_to_keep=200)  # Why 200? No clue
+    self.saver = tf.train.Saver()
 
     # Restore the previous model if it exists
     self.manage_previous_model()
