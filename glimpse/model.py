@@ -91,6 +91,8 @@ class Model:
         outputs = np.transpose(outputs,axes=(1,0,2))
         print np.argmax(outputs,axis=2)
         predicted_words[:,shifted_start:shifted_end,:] = outputs
+      except KeyboardInterrupt:
+        return predicted_words
       except BaseException, e:
         print 'FUCKING ERROR: {}'.format(e)
           

@@ -13,4 +13,4 @@ if __name__ == '__main__':
   
   prediction = model.batch_predict(X_test[0:4])
   
-  print prediction
+  import code; code.interact(local=locals())
