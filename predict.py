@@ -11,6 +11,6 @@ if __name__ == '__main__':
   # Restore model as class
   model = Model(feed_previous=True)
   
-  prediction = model.batch_predict(X_test[0])
+  prediction = model.batch_predict(X_test[0:4])
   
   print prediction
