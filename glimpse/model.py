@@ -14,13 +14,13 @@ def build_network(batch_size,num_words,vocab_size,max_length,image_size,learning
       y_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
       y_past = tf.placeholder(shape=[batch_size, max_length, vocab_size], dtype=tf.float32)
   
-      v = pixnet.conv_block(x_image, batch_size=batch_size)
-  
-      t = pixnet.conv_text(y_past, batch_size=batch_size)
-  
-      output_words = pixnet.lstm_block(x_words, v, t, vocab_size=vocab_size,
-                                       num_words=num_words, batch_size=batch_size,
-                                       feed_previous=feed_previous)
+    v = pixnet.conv_block(x_image, batch_size=batch_size)
+
+    t = pixnet.conv_text(y_past, batch_size=batch_size)
+
+    output_words = pixnet.lstm_block(x_words, v, t, vocab_size=vocab_size,
+                                     num_words=num_words, batch_size=batch_size,
+                                     feed_previous=feed_previous)
   
     loss = 0.0
     for i in range(len(output_words)):
