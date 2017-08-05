@@ -43,12 +43,13 @@ class Trainer:
     learning_rate = self.params.learning_rate
     image_size = self.params.image_size
 
-    inputs,outputs,train = build_network(batch_size,num_words,vocab_size,max_length,
-        image_size,learning_rate)
-        
-    self.x_image,self.x_words,self.y_words,self.y_past = inputs
-    self.output_words = outputs
-    self.loss,self.minimize_loss = train
+    with tf.device('/gpu:0'):
+      inputs,outputs,train = build_network(batch_size,num_words,vocab_size,max_length,
+          image_size,learning_rate)
+          
+      self.x_image,self.x_words,self.y_words,self.y_past = inputs
+      self.output_words = outputs
+      self.loss,self.minimize_loss = train
 
   def extract_data(self):
     print 'Extracting data from dataset...'
