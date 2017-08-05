@@ -76,13 +76,14 @@ class Model:
     predicted_words[:,:,self.vocab_size-1] = 1.0
 
     for i in range(0,self.max_length,self.num_words-10):
-        print "predicting words starting at {}".format(i)
-        start_ind = i
-        end_ind = i+self.num_words
-        shifted_start = start_ind+1
-        shifted_end = end_ind+1
-        input_words = predicted_words[:,start_ind:end_ind,:]
-
+      print "predicting words starting at {}".format(i)
+      start_ind = i
+      end_ind = i+self.num_words
+      shifted_start = start_ind+1
+      shifted_end = end_ind+1
+      input_words = predicted_words[:,start_ind:end_ind,:]
+      
+      try:
         outputs = self.sess.run(self.output_words,{self.x_image:images,
             self.x_words:input_words,self.y_past:predicted_words})
 
@@ -90,4 +91,7 @@ class Model:
         outputs = np.transpose(outputs,axes=(1,0,2))
         print np.argmax(outputs,axis=2)
         predicted_words[:,shifted_start:shifted_end,:] = outputs
+      except BaseException, e:
+        print 'FUCKING ERROR: {}'.format(e)
+          
     return predicted_words
