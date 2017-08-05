@@ -1,5 +1,6 @@
 import h5py
 from glimpse.helpers.definitions import dataset_path
+from glimpse.utils.vocab import vec2dml
 from glimpse.model import Model
 
 if __name__ == '__main__':
@@ -11,6 +12,9 @@ if __name__ == '__main__':
   # Restore model as class
   model = Model(feed_previous=True)
   
-  prediction = model.batch_predict(X_test[0:4])
+  predictions = model.batch_predict(X_test[0:4])
   
-  import code; code.interact(local=locals())
+  for dml_vec in predictions:
+    dml = vec2dml(dml_vec)
+    print dml
+    print ''
