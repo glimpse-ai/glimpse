@@ -64,7 +64,6 @@ class Model:
 
     # if not os.path.exists(path):
     #   raise BaseException('Model not found at path: {}'.format(path))
-
     self.saver = tf.train.Saver(max_to_keep=200)
 
     print 'Restoring model...'
@@ -73,7 +72,7 @@ class Model:
 
   def batch_predict(self,images):
     N = images.shape[0]
-    predicted_words = np.zeros((N,self.max_length,self.vocab_size))
+    predicted_words = np.zeros((N, self.max_length ,self.vocab_size))
     predicted_words[:,:,self.vocab_size-1] = 1.0
 
     for i in range(0,self.max_length,self.num_words-10):
@@ -92,6 +91,3 @@ class Model:
         print np.argmax(outputs,axis=2)
         predicted_words[:,shifted_start:shifted_end,:] = outputs
     return predicted_words
-
-  def single_predict(self):
-    return

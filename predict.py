@@ -1,12 +1,18 @@
-import numpy as np
-from glimpse import model
-import glimpse.helpers.definitions as definitions
+import h5py
+from glimpse.helpers.definitions import dataset_path
+from glimpse.model import Model
 
-model_path = definitions.model_path
-
-m = model.Model(model_path, feed_previous=True)
-
-#@Ben: replace this with actual data
-images = np.random.randn(4,1250,640,3)
-
-predictions = m.batch_predict(images)
+if __name__ == '__main__':
+  # Extract test data
+  dataset = h5py.File(dataset_path, 'r')
+  test_set = dataset.get('test')
+  X_test, Y_test = test_set.get('images'), test_set.get('labels')
+  
+  # Restore model as class
+  model = Model(feed_previous=True)
+  
+  first_batch = X_test[0:4]
+  
+  predictions = model.batch_predict(first_batch)
+  
+  import code; code.interact(local=locals())
