@@ -5,7 +5,7 @@ import numpy as np
 from glimpse.helpers.definitions import dataset_path, model_dir, model_path, model_name
 from glimpse.utils.params import Params
 from glimpse.utils import pixnet
-
+from glimpse.model import build_network
 
 class Trainer:
   params = Params('trainer')
@@ -36,7 +36,19 @@ class Trainer:
     self.extract_data()
 
     # Construct our network
-    self.build_network()
+    batch_size = self.params.batch_size
+    num_words = self.params.num_words
+    vocab_size = self.params.vocab_size
+    max_length = self.params.max_length
+    learning_rate = self.params.learning_rate
+    image_size = self.params.image_size
+
+    inputs,outputs,train = build_network(batch_size,num_words,vocab_size,max_length,
+        image_size,learning_rate)
+        
+    self.x_image,self.x_words,self.y_words,self.y_past = inputs
+    self.output_words = outputs
+    self.loss,self.minimize_loss = train
 
   def extract_data(self):
     print 'Extracting data from dataset...'
@@ -57,34 +69,6 @@ class Trainer:
 
     #get max string length
     self.params.max_length = self.Y_train.shape[1]
-
-  def build_network(self):
-    print 'Building network...'
-    batch_size = self.params.batch_size
-    num_words = self.params.num_words
-    vocab_size = self.params.vocab_size
-    max_length = self.params.max_length
-
-    self.x_image = tf.placeholder(shape=[batch_size] + self.params.image_size, dtype=tf.float32)
-    self.x_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
-    self.y_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
-    self.y_past = tf.placeholder(shape=[batch_size, max_length, vocab_size], dtype=tf.float32)
-
-    v = pixnet.conv_block(self.x_image, batch_size=batch_size)
-
-    t = pixnet.conv_text(self.y_past, batch_size=batch_size)
-
-    self.output_words = pixnet.lstm_block(self.x_words, v, t, vocab_size=vocab_size,
-                                     num_words=num_words, batch_size=batch_size)
-
-    for i in range(len(self.output_words)):
-      self.loss += tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y_words[:, i, :],
-                                                                          logits=self.output_words[i]))
-
-    self.loss = self.loss / num_words
-
-    self.opt = tf.train.AdamOptimizer(self.params.learning_rate)
-    self.minimize_loss = self.opt.minimize(self.loss)
 
   def get_batch(self):
     N = self.X_train.shape[0]
@@ -138,13 +122,13 @@ class Trainer:
     try:
       for it in range(self.params.train_steps)[self.params.gstep:]:
         print '{}/{}'.format(it, self.params.train_steps)
-          
+
         batch_info = self.get_batch()
-        
+
         if not batch_info:
           self.params.gstep += 1
           continue
-        
+
         x_in, y_in, y_lab, y_past = batch_info
 
         self.sess.run(self.minimize_loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab,

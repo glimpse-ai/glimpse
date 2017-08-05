@@ -1,15 +1,16 @@
 {
-  "batch_size": 4,
-  "gstep": 0,
+  "batch_size": 4, 
+  "gstep": 30, 
   "image_size": [
     1250, 
     640, 
     3
   ], 
   "learning_rate": 0.0001, 
+  "max_length": 12728, 
   "num_words": 30, 
-  "print_every": 10,
-  "save_every": 100, 
-  "train_steps": 10000, 
+  "print_every": 10, 
+  "save_every": 10, 
+  "train_steps": 100, 
   "vocab_size": 50
 }

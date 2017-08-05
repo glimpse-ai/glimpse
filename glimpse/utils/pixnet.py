@@ -92,6 +92,16 @@ def conv_block(x, num_filters=32, filter_dims=[5, 5], fc_size=1024,
     return a
 
 
+def softmax_to_binary(x,axis=0):
+    shape = tf.shape(x)
+    m = tf.reduce_max(x,axis=axis,keep_dims=True)
+    s = tf.ones(shape=shape)*m
+    b = tf.greater_equal(x,s)
+
+    zeros = tf.zeros(shape=shape)
+    ones = tf.ones(shape=shape)
+    out = tf.where(b,ones,zeros)
+    return out
 def lstm_block(x, v, t, lstm_size=512, vocab_size=52, num_words=30, feed_previous=False,
                scope='lstm_block', reuse=False, batch_size=4):
   with tf.variable_scope(scope, reuse=reuse):
@@ -111,6 +121,13 @@ def lstm_block(x, v, t, lstm_size=512, vocab_size=52, num_words=30, feed_previou
 
     o = fully_connected(o_2, output_units=vocab_size, std='xavier', activation=tf.identity, reuse=False, scope='lstm_fc')
 
+    if feed_previous:
+        print o
+        o = tf.nn.softmax(o)
+        print o
+        o = softmax_to_binary(o,axis=1)
+        print o
+
   with tf.variable_scope(scope, reuse=True):
     # Teacher training, we feed in a list of words so dont need to feed back in
     # the output of the lstm
@@ -120,9 +137,10 @@ def lstm_block(x, v, t, lstm_size=512, vocab_size=52, num_words=30, feed_previou
       if not feed_previous:
         word = x[:, i + 1, :]
       else:
-        word = tf.softmax(o)
+        word = o
 
       with tf.variable_scope('lstm_1', reuse=True):
+        print word
         o, state_first = lstm_first(word, state_first)
 
       o = tf.concat([o, v,t],axis=1)
@@ -132,6 +150,10 @@ def lstm_block(x, v, t, lstm_size=512, vocab_size=52, num_words=30, feed_previou
 
       o = fully_connected(o, output_units=vocab_size, std='xavier', activation=tf.identity, reuse=True, scope='lstm_fc')
 
-      outputs.append(o)
-
+      if not feed_previous:
+          outputs.append(o)
+      else:
+          o = tf.nn.softmax(o)
+          o = softmax_to_binary(o,axis=1)
+          outputs.append(o)
   return outputs
