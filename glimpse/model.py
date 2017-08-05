@@ -7,20 +7,21 @@ import numpy as np
 
 def build_network(batch_size,num_words,vocab_size,max_length,image_size,learning_rate,feed_previous=False):
     print 'Building network...'
-
-    x_image = tf.placeholder(shape=[batch_size] + image_size, dtype=tf.float32)
-    x_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
-    y_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
-    y_past = tf.placeholder(shape=[batch_size, max_length, vocab_size], dtype=tf.float32)
-
-    v = pixnet.conv_block(x_image, batch_size=batch_size)
-
-    t = pixnet.conv_text(y_past, batch_size=batch_size)
-
-    output_words = pixnet.lstm_block(x_words, v, t, vocab_size=vocab_size,
-                                     num_words=num_words, batch_size=batch_size,
-                                     feed_previous=feed_previous)
-
+    
+    with tf.device('/gpu:0'):
+      x_image = tf.placeholder(shape=[batch_size] + image_size, dtype=tf.float32)
+      x_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
+      y_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
+      y_past = tf.placeholder(shape=[batch_size, max_length, vocab_size], dtype=tf.float32)
+  
+      v = pixnet.conv_block(x_image, batch_size=batch_size)
+  
+      t = pixnet.conv_text(y_past, batch_size=batch_size)
+  
+      output_words = pixnet.lstm_block(x_words, v, t, vocab_size=vocab_size,
+                                       num_words=num_words, batch_size=batch_size,
+                                       feed_previous=feed_previous)
+  
     loss = 0.0
     for i in range(len(output_words)):
       loss += tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_words[:, i, :],
