@@ -8,11 +8,10 @@ import numpy as np
 def build_network(batch_size,num_words,vocab_size,max_length,image_size,learning_rate,feed_previous=False):
     print 'Building network...'
     
-    with tf.device('/gpu:0'):
-      x_image = tf.placeholder(shape=[batch_size] + image_size, dtype=tf.float32)
-      x_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
-      y_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
-      y_past = tf.placeholder(shape=[batch_size, max_length, vocab_size], dtype=tf.float32)
+    x_image = tf.placeholder(shape=[batch_size] + image_size, dtype=tf.float32)
+    x_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
+    y_words = tf.placeholder(shape=[batch_size, num_words, vocab_size], dtype=tf.float32)
+    y_past = tf.placeholder(shape=[batch_size, max_length, vocab_size], dtype=tf.float32)
   
     v = pixnet.conv_block(x_image, batch_size=batch_size)
 

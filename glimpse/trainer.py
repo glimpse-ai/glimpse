@@ -108,7 +108,7 @@ class Trainer:
 
   def train(self):
     # Create a new session and initialize vars
-    self.sess = tf.Session()
+    self.sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
     self.sess.run(tf.global_variables_initializer())
 
     # Create our model saver
