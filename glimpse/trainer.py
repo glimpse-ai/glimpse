@@ -4,8 +4,8 @@ import tensorflow as tf
 import numpy as np
 from glimpse.helpers.definitions import dataset_path, model_dir, model_path, model_name
 from glimpse.utils.params import Params
-from glimpse.utils import pixnet
 from glimpse.model import build_network
+
 
 class Trainer:
   params = Params('trainer')
@@ -67,7 +67,7 @@ class Trainer:
     self.val_label_lens = val_set.get('label_lens')
     self.test_label_lens = test_set.get('label_lens')
 
-    #get max string length
+    # Get max string length
     self.params.max_length = self.Y_train.shape[1]
 
   def get_batch(self):
@@ -131,14 +131,23 @@ class Trainer:
 
         x_in, y_in, y_lab, y_past = batch_info
 
-        self.sess.run(self.minimize_loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab,
-            self.y_past : y_past})
+        self.sess.run(self.minimize_loss, {
+                        self.x_image: x_in,
+                        self.x_words: y_in,
+                        self.y_words: y_lab,
+                        self.y_past : y_past
+                      })
 
         self.params.gstep += 1
 
         if self.params.gstep % self.params.print_every == 0:
-          l = self.sess.run(self.loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab,
-            self.y_past: y_past})
+          l = self.sess.run(self.loss, {
+                              self.x_image: x_in,
+                              self.x_words: y_in,
+                              self.y_words: y_lab,
+                              self.y_past: y_past
+                            })
+          
           print "iteration {}: training loss = {}".format(it, l)
 
         # Reached a checkpoint

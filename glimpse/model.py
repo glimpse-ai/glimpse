@@ -85,14 +85,13 @@ class Model:
       shifted_end = end_ind + 1
       input_words = predicted_words[:, start_ind:end_ind, :]
 
-      feed_dict = {
-        self.x_image: images,
-        self.x_words: input_words,
-        self.y_past: predicted_words
-      }
-
       try:
-        outputs = self.sess.run(self.output_words, feed_dict)
+        outputs = self.sess.run(self.output_words, {
+                                  self.x_image: images,
+                                  self.x_words: input_words,
+                                  self.y_past: predicted_words
+                                })
+        
         outputs = np.asarray(outputs)
         outputs = np.transpose(outputs, axes=(1, 0, 2))
         
