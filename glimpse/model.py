@@ -1,6 +1,6 @@
-import os
 from glimpse.helpers.definitions import model_path
 from glimpse.utils.params import Params
+from glimpse.utils.vocab import vec2dml
 from glimpse.utils import pixnet
 import tensorflow as tf
 import numpy as np
@@ -41,9 +41,6 @@ class Model:
   params = Params('trainer')
 
   def __init__(self, path=model_path, feed_previous=False):
-    if not os.path.exists(path):
-      raise BaseException('Model not found at path: {}'.format(path))
-    
     # Construct our network
     self.batch_size = self.params.batch_size
     self.num_words = self.params.num_words
@@ -72,13 +69,13 @@ class Model:
 
     self.saver.restore(self.sess, path)
 
-  def batch_predict(self,images):
+  def batch_predict(self, images):
     N = images.shape[0]
     predicted_words = np.zeros((N, self.max_length, self.vocab_size))
     predicted_words[:, :, self.vocab_size - 1] = 1.0
 
     for i in range(0, self.max_length, self.num_words - 10):
-      print 'Predicting words starting at {}'.format(i)
+      # print 'Predicting words starting at {}'.format(i)
       start_ind = i
       end_ind = i + self.num_words
       shifted_start = start_ind + 1
@@ -95,10 +92,9 @@ class Model:
         outputs = np.asarray(outputs)
         outputs = np.transpose(outputs, axes=(1, 0, 2))
         
-        print np.argmax(outputs, axis=2)
-        
         predicted_words[:, shifted_start:shifted_end, :] = outputs
         
+        print vec2dml(predicted_words[0]) + '\n'
       except KeyboardInterrupt:
         return predicted_words
       except BaseException, e:

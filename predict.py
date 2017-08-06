@@ -12,9 +12,6 @@ if __name__ == '__main__':
   # Restore model as class
   model = Model(feed_previous=True)
   
-  predictions = model.batch_predict(X_test[0:4])
+  images = X_test[12:13]
   
-  for dml_vec in predictions:
-    dml = vec2dml(dml_vec)
-    print dml
-    print ''
+  model.batch_predict(images)

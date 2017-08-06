@@ -135,7 +135,7 @@ class Trainer:
                         self.x_image: x_in,
                         self.x_words: y_in,
                         self.y_words: y_lab,
-                        self.y_past : y_past
+                        self.y_past: y_past
                       })
 
         self.params.gstep += 1
