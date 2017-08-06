@@ -43,12 +43,12 @@ class Trainer:
     learning_rate = self.params.learning_rate
     image_size = self.params.image_size
 
-    inputs,outputs,train = build_network(batch_size,num_words,vocab_size,max_length,
-          image_size,learning_rate)
+    inputs, outputs, train = build_network(batch_size, num_words, vocab_size, max_length,
+                                           image_size, learning_rate)
           
-    self.x_image,self.x_words,self.y_words,self.y_past = inputs
+    self.x_image, self.x_words, self.y_words, self.y_past = inputs
     self.output_words = outputs
-    self.loss,self.minimize_loss = train
+    self.loss, self.minimize_loss = train
 
   def extract_data(self):
     print 'Extracting data from dataset...'
@@ -101,14 +101,14 @@ class Trainer:
       y_in[i] = y[i, start:end, :]
       y_out[i] = y[i, shifted_start:shifted_end, :]
 
-      y_past[i,:start,:] = y[i,:start,:]
-      y_past[i,start:,self.params.vocab_size-1] = 1.0
+      y_past[i, :start, :] = y[i, :start, :]
+      y_past[i, start:, self.params.vocab_size - 1] = 1.0
 
     return x, y_in, y_out, y_past
 
   def train(self):
     # Create a new session and initialize vars
-    self.sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+    self.sess = tf.Session()
     self.sess.run(tf.global_variables_initializer())
 
     # Create our model saver
@@ -138,7 +138,7 @@ class Trainer:
 
         if self.params.gstep % self.params.print_every == 0:
           l = self.sess.run(self.loss, {self.x_image: x_in, self.x_words: y_in, self.y_words: y_lab,
-            self.y_past : y_past})
+            self.y_past: y_past})
           print "iteration {}: training loss = {}".format(it, l)
 
         # Reached a checkpoint
