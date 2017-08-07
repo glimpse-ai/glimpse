@@ -1,7 +1,7 @@
 import h5py
 from glimpse.helpers.definitions import dataset_path
-from glimpse.utils.vocab import vec2dml
 from glimpse.model import Model
+
 
 if __name__ == '__main__':
   # Extract test data
@@ -12,6 +12,6 @@ if __name__ == '__main__':
   # Restore model as class
   model = Model(feed_previous=True)
   
-  images = X_test[12:13]
+  images = X_test[::4][:4]
   
   model.batch_predict(images)

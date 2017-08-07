@@ -78,8 +78,15 @@ class Model:
       # print 'Predicting words starting at {}'.format(i)
       start_ind = i
       end_ind = i + self.num_words
-      shifted_start = start_ind + 1
-      shifted_end = end_ind + 1
+      
+      # Don't shift indexes on first loop -- otherwise, first char will always be pad character
+      if start_ind == 0:
+        shifted_start = start_ind
+        shifted_end = end_ind
+      else:
+        shifted_start = start_ind + 1
+        shifted_end = end_ind + 1
+        
       input_words = predicted_words[:, start_ind:end_ind, :]
 
       try:
@@ -94,10 +101,12 @@ class Model:
         
         predicted_words[:, shifted_start:shifted_end, :] = outputs
         
+        # Log 1st batch's predicted DML
         print vec2dml(predicted_words[0]) + '\n'
+      
       except KeyboardInterrupt:
         return predicted_words
       except BaseException, e:
-        print 'FUCKING ERROR: {}'.format(e)
+        print 'Prediction error: {}'.format(e)
           
     return predicted_words
