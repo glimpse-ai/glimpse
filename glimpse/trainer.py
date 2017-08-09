@@ -89,10 +89,6 @@ class Trainer:
     for i in range(self.params.batch_size):
       lab_len = self.train_label_lens[inds[i]] - self.params.num_words - 1
 
-      if lab_len <= 0:
-        print 'Label length <= 0...skipping index {}'.format(inds[i])
-        return None
-
       start = np.random.randint(lab_len)
       end = start + self.params.num_words
       shifted_start = start + 1
@@ -123,13 +119,7 @@ class Trainer:
       for it in range(self.params.train_steps)[self.params.gstep:]:
         print '{}/{}'.format(it, self.params.train_steps)
 
-        batch_info = self.get_batch()
-
-        if not batch_info:
-          self.params.gstep += 1
-          continue
-
-        x_in, y_in, y_lab, y_past = batch_info
+        x_in, y_in, y_lab, y_past = self.get_batch()
 
         self.sess.run(self.minimize_loss, {
                         self.x_image: x_in,
