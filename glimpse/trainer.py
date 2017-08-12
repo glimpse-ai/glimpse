@@ -26,7 +26,9 @@ class Trainer:
     self.model = Model()
 
     # Build network
-    inputs, output, loss_info = self.model.build_network(batch_size=self.batch_size, num_words=self.num_words, feed_previous=feed_previous)
+    inputs, output, loss_info = self.model.build_network(batch_size=self.batch_size,
+                                                         num_words=self.num_words,
+                                                         feed_previous=feed_previous)
 
     # Establish network inputs, final output, loss & minimize_loss functions
     self.x_image, self.x_words, self.y_words, self.y_past = inputs
