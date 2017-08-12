@@ -1,79 +1,58 @@
+import json
 import os
-import h5py
 import tensorflow as tf
 import numpy as np
-from glimpse.helpers.definitions import dataset_path, model_dir, model_path, model_name
-from glimpse.utils.params import Params
-from glimpse.model import build_network
+from glimpse.model import Model
+from glimpse.helpers import dataset
+from glimpse.helpers.definitions import global_step_path
+from glimpse.utils.vocab import vec2dml
 
 
 class Trainer:
-  params = Params('trainer')
+  batch_size = 4
+  print_every = 10
+  save_every = 100
+  train_steps = 20000
+  num_words = 30
 
-  def __init__(self):
-    # Initialize empty attrs
-    self.X_train, self.Y_train = None, None
-    self.X_val, self.Y_val = None, None
-    self.X_test, self.Y_test = None, None
+  def __init__(self, feed_previous=False):
+    # Establish train, val, and test data refs
+    print 'Extracting data...'
+    self.X_train, self.Y_train, self.train_label_lens = dataset.train()
+    self.X_val, self.Y_val, self.val_label_lens = dataset.val()
+    self.X_test, self.Y_test, self.test_label_lens = dataset.test()
 
-    self.x_image = None
-    self.x_words = None
-    self.y_words = None
+    # Get our model instance
+    self.model = Model()
 
-    self.train_label_lens = None
-    self.val_label_lens = None
-    self.test_label_lens = None
+    # Build network
+    inputs, output, loss_info = self.model.build_network(batch_size=self.batch_size, num_words=self.num_words, feed_previous=feed_previous)
 
-    self.loss = 0.0
-    self.output_words = None
-    self.opt = None
-    self.minimize_loss = None
-    self.sess = None
-
-    self.saver = None
-
-    # Read hdf5 dataset from disk
-    self.extract_data()
-
-    # Construct our network
-    batch_size = self.params.batch_size
-    num_words = self.params.num_words
-    vocab_size = self.params.vocab_size
-    max_length = self.params.max_length
-    learning_rate = self.params.learning_rate
-    image_size = self.params.image_size
-
-    inputs, outputs, train = build_network(batch_size, num_words, vocab_size, max_length,
-                                           image_size, learning_rate)
-          
+    # Establish network inputs, final output, loss & minimize_loss functions
     self.x_image, self.x_words, self.y_words, self.y_past = inputs
-    self.output_words = outputs
-    self.loss, self.minimize_loss = train
+    self.output_words = output
+    self.loss, self.minimize_loss = loss_info
 
-  def extract_data(self):
-    print 'Extracting data from dataset...'
-    dataset = h5py.File(dataset_path, 'r')
+    # Create a new session and initialize globals
+    print 'Initializing session...'
+    self.sess = tf.Session()
+    self.sess.run(tf.global_variables_initializer())
 
-    train_set = dataset.get('train')
-    val_set = dataset.get('val')
-    test_set = dataset.get('test')
+    # Create our saver
+    self.saver = tf.train.Saver(max_to_keep=200)
 
-    self.X_train, self.Y_train = train_set.get('images'), train_set.get('labels')
-    self.X_val, self.Y_val = val_set.get('images'), val_set.get('labels')
-    self.X_test, self.Y_test = test_set.get('images'), test_set.get('labels')
+    # Restore prev model if exists
+    if self.model.exists():
+      print 'Previous model found. Restoring...'
+      self.saver.restore(self.sess, self.model.path)
 
-    # Non-padded label lengths
-    self.train_label_lens = train_set.get('label_lens')
-    self.val_label_lens = val_set.get('label_lens')
-    self.test_label_lens = test_set.get('label_lens')
-
-    # Get max string length
-    self.params.max_length = self.Y_train.shape[1]
+    # Get stored global step value
+    self.global_step = self.get_gstep()
 
   def get_batch(self):
     N = self.X_train.shape[0]
 
-    inds = list(np.random.choice(range(N), size=self.params.batch_size, replace=False))
+    inds = list(np.random.choice(range(N), size=self.batch_size, replace=False))
     inds.sort()
 
     x = self.X_train[inds]
@@ -82,15 +61,15 @@ class Trainer:
     # Get random starting point in the dml string to use as input
     # The labels are then the starting point shifted one up
 
-    y_in = np.zeros((self.params.batch_size, self.params.num_words, self.params.vocab_size))
-    y_out = np.zeros((self.params.batch_size, self.params.num_words, self.params.vocab_size))
-    y_past = np.zeros((self.params.batch_size, self.params.max_length, self.params.vocab_size))
+    y_in = np.zeros((self.batch_size, self.num_words, self.model.vocab_size))
+    y_out = np.zeros((self.batch_size, self.num_words, self.model.vocab_size))
+    y_past = np.zeros((self.batch_size, self.model.max_length, self.model.vocab_size))
 
-    for i in range(self.params.batch_size):
-      lab_len = self.train_label_lens[inds[i]] - self.params.num_words - 1
+    for i in range(self.batch_size):
+      lab_len = self.train_label_lens[inds[i]] - self.num_words - 1
 
       start = np.random.randint(lab_len)
-      end = start + self.params.num_words
+      end = start + self.num_words
       shifted_start = start + 1
       shifted_end = end + 1
 
@@ -98,50 +77,36 @@ class Trainer:
       y_out[i] = y[i, shifted_start:shifted_end, :]
 
       y_past[i, :start, :] = y[i, :start, :]
-      y_past[i, start:, self.params.vocab_size - 1] = 1.0
+      y_past[i, start:, self.model.vocab_size - 1] = 1.0
 
     return x, y_in, y_out, y_past
 
   def train(self):
-    # Create a new session and initialize vars
-    self.sess = tf.Session()
-    self.sess.run(tf.global_variables_initializer())
-
-    # Create our model saver
-    self.saver = tf.train.Saver()
-
-    # Restore the previous model if it exists
-    self.manage_previous_model()
-
     print 'Starting to train. Press Ctrl+C to save and exit.'
-
+    
     try:
-      for it in range(self.params.train_steps)[self.params.gstep:]:
-        print '{}/{}'.format(it, self.params.train_steps)
+      for i in range(self.train_steps)[self.global_step:]:
+        print '{}/{}'.format(i, self.train_steps)
 
         x_in, y_in, y_lab, y_past = self.get_batch()
 
-        self.sess.run(self.minimize_loss, {
-                        self.x_image: x_in,
-                        self.x_words: y_in,
-                        self.y_words: y_lab,
-                        self.y_past: y_past
-                      })
+        feed_dict = {
+          self.x_image: x_in,
+          self.x_words: y_in,
+          self.y_words: y_lab,
+          self.y_past: y_past
+        }
 
-        self.params.gstep += 1
+        self.sess.run(self.minimize_loss, feed_dict)
 
-        if self.params.gstep % self.params.print_every == 0:
-          l = self.sess.run(self.loss, {
-                              self.x_image: x_in,
-                              self.x_words: y_in,
-                              self.y_words: y_lab,
-                              self.y_past: y_past
-                            })
-          
-          print "iteration {}: training loss = {}".format(it, l)
+        self.global_step += 1
+
+        if self.global_step % self.print_every == 0:
+          l = self.sess.run(self.loss, feed_dict)
+          print "iteration {}: training loss = {}".format(self.global_step, l)
 
         # Reached a checkpoint
-        if self.params.gstep % self.params.save_every == 0:
+        if self.global_step % self.save_every == 0:
           self.save_session()
 
     except (KeyboardInterrupt, SystemExit):
@@ -149,21 +114,61 @@ class Trainer:
 
     self.save_session()
 
-  def manage_previous_model(self):
-    # Create model dir if not already there
-    if not os.path.exists(model_dir):
-      os.mkdir(model_dir)
+  def predict(self, images):
+    N = images.shape[0]
+    predicted_words = np.zeros((N, self.model.max_length, self.model.vocab_size))
+    predicted_words[:, :, self.model.vocab_size - 1] = 1.0
 
-    for f in os.listdir(model_dir):
-      if f.startswith(model_name):
-        print 'Previous model found. Restoring...'
-        self.saver.restore(self.sess, model_path)
-        break
+    for i in range(0, self.model.max_length, self.num_words - 10):
+      start_ind = i
+      end_ind = i + self.num_words
+
+      # Don't shift indexes on first loop -- otherwise, first char will always be pad character
+      if start_ind == 0:
+        shifted_start = start_ind
+        shifted_end = end_ind
+      else:
+        shifted_start = start_ind + 1
+        shifted_end = end_ind + 1
+
+      input_words = predicted_words[:, start_ind:end_ind, :]
+
+      try:
+        outputs = self.sess.run(self.output_words, {
+                                  self.x_image: images,
+                                  self.x_words: input_words,
+                                  self.y_past: predicted_words
+                                })
+
+        outputs = np.asarray(outputs)
+        outputs = np.transpose(outputs, axes=(1, 0, 2))
+
+        predicted_words[:, shifted_start:shifted_end, :] = outputs
+
+        # Log 1st batch's predicted DML
+        print vec2dml(predicted_words[0]) + '\n'
+
+      except KeyboardInterrupt:
+        return predicted_words
+      except BaseException, e:
+        print 'Prediction error: {}'.format(e)
+
+    return predicted_words
 
   def save_session(self):
-    print 'Saving model and its params...'
-    # Save model params
-    self.params.save()
+    print 'Saving session...'
+    self.set_gstep()
+    self.saver.save(self.sess, self.model.path)
 
-    # Save session
-    self.saver.save(self.sess, model_path)
+  def get_gstep(self):
+    # Create global_step.json if not there yet
+    if not os.path.exists(global_step_path):
+      self.set_gstep()
+      return 0
+
+    with open(global_step_path) as f:
+      return json.load(f).get('val') or 0
+
+  def set_gstep(self):
+    with open(global_step_path, 'w+') as f:
+      f.write(json.dumps({'val': self.global_step or 0}, indent=2))
