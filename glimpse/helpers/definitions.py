@@ -27,3 +27,5 @@ placeholder_image_name = 'placeholder.jpg'
 placeholder_input_text = 'Enter text'
 
 templates_dir = basedir + '/glimpse/templates'
+
+global_step_path = data_dir + '/global_step.json'

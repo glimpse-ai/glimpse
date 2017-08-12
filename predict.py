@@ -1,17 +1,12 @@
-import h5py
-from glimpse.helpers.definitions import dataset_path
-from glimpse.model import Model
+from glimpse.helpers import dataset
+from glimpse.trainer import Trainer
 
 
 if __name__ == '__main__':
-  # Extract test data
-  dataset = h5py.File(dataset_path, 'r')
-  test_set = dataset.get('test')
-  X_test, Y_test = test_set.get('images'), test_set.get('labels')
+  images, labels, label_lens = dataset.test()
   
-  # Restore model as class
-  model = Model(feed_previous=True)
-  
-  images = X_test[::4][:4]
-  
-  model.batch_predict(images)
+  trainer = Trainer(feed_previous=True)
+
+  image_batch = images[::4][:4]
+
+  trainer.predict(image_batch)

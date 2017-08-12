@@ -7,13 +7,13 @@ from glimpse.helpers import invert_map
 with open(vocab_path) as f:
   vocab = json.load(f)
 
-num_words = len(vocab)
+vocab_size = len(vocab)
 
 # pad_char will be last char in vocab
 pad_char = vocab[-1]
 
-# Create a num_words_x_num_words placeholder matrix
-word_vectors = np.zeros([num_words, num_words])
+# Create a vocab_size_x_vocab_size placeholder matrix
+word_vectors = np.zeros([vocab_size, vocab_size])
 
 word_to_index = {}
 
