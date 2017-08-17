@@ -66,7 +66,7 @@ def create_grouped_datasets(f, set_name, filenames, max_dml_len):
     if (i + 1) % log_progress_step == 0:
       print 'Done with {} of {}.'.format(i + 1, num_records)
     
-    images[i] = misc.imread('{}/{}.png'.format(image_dir, n), mode=image_color_repr)
+    images[i] = normalize(misc.imread('{}/{}.png'.format(image_dir, n), mode=image_color_repr))
     
     with open('{}/{}.dml'.format(dml_dir, n)) as dml_file:
       dml = dml_file.read()
