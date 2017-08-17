@@ -1,6 +1,5 @@
 h5py==2.7.0
 numpy==1.13.1
 scipy==0.19.1
-tensorflow==1.2.1
 beautifulsoup4==4.6.0
 Pillow==4.1.1
