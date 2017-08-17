@@ -159,7 +159,7 @@ class Trainer:
 
   def save_session(self):
     print 'Saving session...'
-    self.set_gstep()
+    self.set_gstep(self.global_step)
     self.saver.save(self.sess, self.model.path)
 
   def get_gstep(self):
@@ -171,6 +171,6 @@ class Trainer:
     with open(global_step_path) as f:
       return json.load(f).get('val') or 0
 
-  def set_gstep(self):
+  def set_gstep(self, val=0):
     with open(global_step_path, 'w+') as f:
-      f.write(json.dumps({'val': self.global_step or 0}, indent=2))
+      f.write(json.dumps({'val': val}, indent=2))
