@@ -7,3 +7,5 @@ data/
 tmp/
 *.pem
 bin/
+prototyping/model/*
+prototyping/model*
