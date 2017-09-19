@@ -1,10 +1,11 @@
 import os
 
 basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-print basedir
 data_dir = basedir + '/data'
 dml_dir = data_dir + '/dml'
 image_dir = data_dir + '/images'
+html_dir = data_dir + '/html'
+insights_dir = basedir + '/glimpse/insights'
 
 vocab_path = '{}/vocab.json'.format(data_dir)
 
