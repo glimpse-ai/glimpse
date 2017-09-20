@@ -13,17 +13,17 @@
 // Tree Format
 
 [ // new el
-  [1, 0, 0, 0... 0] // tagname='body'
-    [ // body's children
+  [1, 0, 0, 0], // tagname='body'
+  [ // body's children
     [ // new el
-      [0, 1, 0, 0... 0], // tagname='div'
+      [0, 1, 0, 0], // tagname='div'
       [ // div's children
         [ // new el
-          [0, 0, 1, 0... 0], // tagname='a'
+          [0, 0, 1, 0], // tagname='a'
           [] // a's children
         ],
         [ // new el
-          [0, 0, 0, 1... 0], // tagname='p'
+          [0, 0, 0, 1], // tagname='p'
           [] // p's children
         ]
       ]
