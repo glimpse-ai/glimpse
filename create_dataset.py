@@ -1,3 +1,6 @@
+"""
+(DEPRECATED) Script to create Image + DML dataset
+"""
 import os
 import sys
 import h5py
