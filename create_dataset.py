@@ -1,5 +1,5 @@
 """
-(DEPRECATED) Script to create Image + DML dataset
+(DEPRECATED) Script
 """
 import os
 import sys
