@@ -44,13 +44,6 @@ def get_tree_specs():
   return args.max_els, max_nodes, max_depth
 
 
-def get_max_depth(el):
-  if hasattr(el, 'contents') and el.contents:
-    return max([get_max_depth(c) for c in el.contents]) + 1
-  else:
-    return 0
-
-
 def get_num_els(el):
   return len([el for el in el.recursiveChildGenerator() if type(el) == Tag]) + 1
 
@@ -82,9 +75,15 @@ def get_split_data(max_els, max_depth, train_split=0.7):
 
     soup = get_soup(n)
 
-    depth = get_max_depth(soup.body) - 1
+    body_children = [el for el in soup.body.recursiveChildGenerator() if type(el) == Tag]
 
-    if depth > max_depth or get_num_els(soup.body) > max_els or too_many_connections(soup):
+    if not body_children:
+      continue
+
+    deepest_depth = max([find_el_depth(el) for el in body_children])
+    num_els = len(body_children) + 1
+
+    if deepest_depth > max_depth or num_els > max_els or too_many_connections([soup.body] + body_children):
       continue
 
     filtered_names.append(n)
@@ -107,9 +106,7 @@ def get_split_data(max_els, max_depth, train_split=0.7):
   return split
 
 
-def too_many_connections(soup):
-  els = [soup.body] + [el for el in soup.body.recursiveChildGenerator() if type(el) == Tag]
-
+def too_many_connections(els):
   for el in els:
     if len(children(el)) > MAX_CONNECTIONS:
       return True
